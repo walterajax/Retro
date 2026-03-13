@@ -8,160 +8,136 @@
   <style>
     body {
       display: flex;
-      flex-direction: column;
       align-items: center;
       justify-content: center;
       min-height: 100vh;
       padding: 24px;
     }
 
-    .landing-card {
-      max-width: 480px;
+    .landing {
+      max-width: 440px;
       width: 100%;
+    }
+
+    .landing-hero {
       text-align: center;
-      padding: 48px 40px;
-    }
-
-    .landing-logo {
-      font-size: 72px;
-      margin-bottom: 8px;
-    }
-
-    .ah-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      background: var(--ah-blue);
-      color: white;
-      padding: 8px 20px;
-      border-radius: 100px;
-      font-size: 14px;
-      font-weight: 700;
-      margin-bottom: 24px;
-    }
-
-    .ah-badge-logo {
-      width: 28px;
-      height: 28px;
+      padding: 40px 32px 32px;
       background: white;
+      border-radius: var(--ah-radius-lg) var(--ah-radius-lg) 0 0;
+      border-bottom: 1px solid var(--ah-border);
+    }
+
+    .ah-logo-large {
+      width: 72px;
+      height: 72px;
+      background: var(--ah-blue);
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 11px;
+      font-size: 26px;
       font-weight: 900;
-      color: var(--ah-blue);
+      color: white;
+      letter-spacing: -1px;
+      margin: 0 auto 20px;
     }
 
     .landing-title {
-      font-size: 32px;
+      font-size: 28px;
       font-weight: 900;
       color: var(--ah-text);
-      margin-bottom: 12px;
       letter-spacing: -0.5px;
+      margin-bottom: 8px;
+      line-height: 1.2;
     }
 
     .landing-sub {
-      font-size: 16px;
+      font-size: 15px;
       color: var(--ah-text-light);
-      line-height: 1.6;
-      margin-bottom: 40px;
+      line-height: 1.55;
     }
 
     .landing-links {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-
-    .landing-link-btn {
-      display: flex;
-      align-items: center;
-      padding: 18px 24px;
       background: white;
-      border: 2px solid var(--ah-border);
-      border-radius: var(--ah-radius);
-      text-decoration: none;
-      color: var(--ah-text);
-      font-weight: 700;
-      font-size: 16px;
-      gap: 14px;
-      transition: all 0.15s ease;
+      border-radius: 0 0 var(--ah-radius-lg) var(--ah-radius-lg);
+      overflow: hidden;
       box-shadow: var(--ah-shadow);
     }
 
-    .landing-link-btn:hover {
-      border-color: var(--ah-blue);
+    .landing-link {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 20px 24px;
+      text-decoration: none;
+      color: var(--ah-text);
+      border-top: 1px solid var(--ah-border);
+      transition: background 0.12s;
+    }
+
+    .landing-link:hover { background: var(--ah-bg); }
+    .landing-link:hover .link-title { color: var(--ah-blue); }
+
+    .link-icon-wrap {
+      width: 48px;
+      height: 48px;
       background: var(--ah-blue-light);
-      color: var(--ah-blue);
-      transform: translateY(-2px);
-      box-shadow: var(--ah-shadow-lg);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      flex-shrink: 0;
     }
 
-    .link-icon {
-      font-size: 28px;
-    }
-
-    .link-label {
-      text-align: left;
-      flex: 1;
-    }
+    .link-body { flex: 1; }
 
     .link-title {
       display: block;
       font-size: 16px;
       font-weight: 800;
+      margin-bottom: 2px;
+      transition: color 0.12s;
     }
 
     .link-desc {
       display: block;
       font-size: 13px;
-      font-weight: 500;
       color: var(--ah-text-light);
-      margin-top: 2px;
+      font-weight: 500;
     }
 
-    .landing-link-btn:hover .link-desc {
-      color: var(--ah-blue-mid);
-    }
-
-    .arrow {
+    .link-arrow {
       font-size: 18px;
-      opacity: 0.4;
+      color: var(--ah-text-light);
     }
   </style>
 </head>
 <body>
 
-<div class="card landing-card fade-in">
-  <div class="landing-logo">🛒</div>
-  <div class="ah-badge">
-    <div class="ah-badge-logo">AH</div>
-    Retro Quiz
+<div class="landing fade-in">
+  <div class="landing-hero">
+    <div class="ah-logo-large">AH</div>
+    <h1 class="landing-title">Sprint Retro Quiz</h1>
+    <p class="landing-sub">Stem anoniem en ontdek wie welke kwaliteit in huis heeft.</p>
   </div>
 
-  <h1 class="landing-title">Welkom bij de<br>Sprint Retro!</h1>
-  <p class="landing-sub">
-    Stem anoniem op je teamgenoten en ontdek wie wat het beste kan in jullie team.
-  </p>
-
   <div class="landing-links">
-    <a href="/host.html" class="landing-link-btn">
-      <div class="link-icon">📺</div>
-      <div class="link-label">
+    <a href="/host.html" class="landing-link">
+      <div class="link-icon-wrap">📺</div>
+      <div class="link-body">
         <span class="link-title">Host scherm</span>
-        <span class="link-desc">Voor op de grote scherm – bedien de quiz</span>
+        <span class="link-desc">Op het grote scherm – bedien de quiz</span>
       </div>
-      <span class="arrow">→</span>
+      <span class="link-arrow">›</span>
     </a>
-
-    <a href="/vote.html" class="landing-link-btn">
-      <div class="link-icon">📱</div>
-      <div class="link-label">
+    <a href="/vote.html" class="landing-link">
+      <div class="link-icon-wrap">📱</div>
+      <div class="link-body">
         <span class="link-title">Stemmen</span>
         <span class="link-desc">Open op je telefoon en breng je stem uit</span>
       </div>
-      <span class="arrow">→</span>
+      <span class="link-arrow">›</span>
     </a>
   </div>
 </div>

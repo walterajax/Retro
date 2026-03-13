@@ -16,13 +16,28 @@
       flex: 1;
       display: flex;
       flex-direction: column;
-      padding: 20px 16px 32px;
+      padding: 16px 16px 28px;
       max-width: 480px;
       margin: 0 auto;
       width: 100%;
     }
 
-    /* Waiting state */
+    /* ── Progress mini ── */
+    .progress-mini {
+      height: 4px;
+      background: var(--ah-border);
+      border-radius: 100px;
+      overflow: hidden;
+      margin-bottom: 16px;
+    }
+    .progress-mini-fill {
+      height: 100%;
+      background: var(--ah-blue);
+      border-radius: 100px;
+      transition: width 0.4s ease;
+    }
+
+    /* ── Waiting ── */
     #waiting-view {
       flex: 1;
       display: flex;
@@ -30,136 +45,83 @@
       align-items: center;
       justify-content: center;
       text-align: center;
+      padding: 20px;
     }
+    .waiting-icon { font-size: 56px; margin-bottom: 18px; }
+    .waiting-title { font-size: 22px; font-weight: 800; color: var(--ah-blue); margin-bottom: 8px; }
+    .waiting-sub   { font-size: 15px; color: var(--ah-text-light); line-height: 1.5; }
 
-    .waiting-icon {
-      font-size: 64px;
-      margin-bottom: 20px;
-    }
-
-    .waiting-title {
-      font-size: 24px;
-      font-weight: 800;
-      color: var(--ah-blue);
-      margin-bottom: 10px;
-    }
-
-    .waiting-sub {
-      font-size: 16px;
-      color: var(--ah-text-light);
-      line-height: 1.5;
-    }
-
-    /* Question area */
-    .question-area {
-      margin-bottom: 20px;
-    }
-
+    /* ── Question card mobile ── */
     .question-card-mobile {
       background: white;
       border-radius: var(--ah-radius-lg);
-      padding: 24px 20px;
+      padding: 20px;
       box-shadow: var(--ah-shadow);
       text-align: center;
-      margin-bottom: 8px;
+      margin-bottom: 14px;
     }
+    .q-emoji   { font-size: 36px; display: block; margin-bottom: 10px; }
+    .q-counter { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: var(--ah-blue); margin-bottom: 8px; }
+    .q-text    { font-size: 16px; font-weight: 700; line-height: 1.4; color: var(--ah-text); }
 
-    .q-emoji {
-      font-size: 40px;
-      display: block;
-      margin-bottom: 12px;
-    }
-
-    .q-counter {
-      font-size: 12px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.8px;
-      color: var(--ah-blue);
-      margin-bottom: 10px;
-    }
-
-    .q-text {
-      font-size: 17px;
-      font-weight: 700;
-      line-height: 1.4;
-      color: var(--ah-text);
-    }
-
-    /* Voting grid */
+    /* ── Vote grid ── */
     .vote-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 10px;
-      margin-bottom: 16px;
     }
 
     .vote-btn {
       background: white;
       border: 2px solid var(--ah-border);
       border-radius: var(--ah-radius);
-      padding: 20px 12px;
-      font-size: 16px;
+      padding: 18px 10px;
+      font-family: var(--font);
+      font-size: 15px;
       font-weight: 700;
       color: var(--ah-text);
       cursor: pointer;
-      transition: all 0.15s ease;
       display: flex;
       flex-direction: column;
       align-items: center;
       gap: 8px;
-      min-height: 80px;
       box-shadow: var(--ah-shadow);
+      transition: all 0.12s ease;
       -webkit-tap-highlight-color: transparent;
     }
-
-    .vote-btn:active {
-      transform: scale(0.96);
-    }
-
-    .vote-btn:hover {
-      border-color: var(--ah-blue);
-      background: var(--ah-blue-light);
-      color: var(--ah-blue);
-    }
+    .vote-btn:active { transform: scale(0.95); }
+    .vote-btn:hover  { border-color: var(--ah-blue); background: var(--ah-blue-light); color: var(--ah-blue); }
 
     .vote-btn.selected {
       background: var(--ah-blue);
       border-color: var(--ah-blue);
       color: white;
       transform: scale(0.97);
-      box-shadow: 0 4px 16px rgba(0, 99, 211, 0.35);
+      box-shadow: 0 4px 14px rgba(0,99,211,0.35);
     }
-
-    .vote-btn:disabled {
-      cursor: not-allowed;
-    }
-
-    .vote-btn.not-selected {
-      opacity: 0.45;
-    }
+    .vote-btn.not-selected { opacity: 0.4; }
+    .vote-btn:disabled { cursor: not-allowed; }
 
     .member-avatar {
       width: 40px;
       height: 40px;
+      background: var(--ah-blue-light);
+      color: var(--ah-blue);
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 18px;
+      font-size: 16px;
       font-weight: 900;
       letter-spacing: -0.5px;
-      background: var(--ah-blue-light);
-      color: var(--ah-blue);
-      transition: all 0.15s;
+      transition: all 0.12s;
     }
-
     .vote-btn.selected .member-avatar {
       background: rgba(255,255,255,0.2);
       color: white;
     }
 
-    /* Confirmation overlay */
+    /* ── Voted ── */
     #voted-view {
       flex: 1;
       display: flex;
@@ -168,46 +130,29 @@
       justify-content: center;
       text-align: center;
     }
-
-    .voted-icon {
-      font-size: 72px;
-      margin-bottom: 20px;
-      animation: scaleIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-    }
-
-    .voted-title {
-      font-size: 26px;
-      font-weight: 900;
-      color: var(--ah-blue);
-      margin-bottom: 10px;
-    }
-
-    .voted-for {
-      font-size: 18px;
-      color: var(--ah-text-light);
-      margin-bottom: 8px;
-    }
-
-    .voted-name {
+    .voted-icon  { font-size: 64px; margin-bottom: 18px; animation: scaleIn 0.4s cubic-bezier(0.34,1.56,0.64,1); }
+    .voted-title { font-size: 24px; font-weight: 900; color: var(--ah-blue); margin-bottom: 8px; }
+    .voted-for   { font-size: 16px; color: var(--ah-text-light); margin-bottom: 10px; }
+    .voted-chip  {
       display: inline-block;
       background: var(--ah-blue);
       color: white;
-      padding: 6px 20px;
+      padding: 7px 22px;
       border-radius: 100px;
-      font-size: 20px;
+      font-size: 18px;
       font-weight: 800;
       margin-bottom: 24px;
     }
-
     .voted-wait {
-      font-size: 14px;
-      color: var(--ah-text-light);
       display: flex;
       align-items: center;
       gap: 8px;
+      font-size: 13px;
+      color: var(--ah-text-light);
+      font-weight: 600;
     }
 
-    /* Revealed state */
+    /* ── Revealed ── */
     #revealed-view {
       flex: 1;
       display: flex;
@@ -216,25 +161,11 @@
       justify-content: center;
       text-align: center;
     }
+    .revealed-icon  { font-size: 52px; margin-bottom: 14px; }
+    .revealed-title { font-size: 20px; font-weight: 800; color: var(--ah-blue); margin-bottom: 6px; }
+    .revealed-sub   { font-size: 14px; color: var(--ah-text-light); }
 
-    .revealed-icon {
-      font-size: 56px;
-      margin-bottom: 16px;
-    }
-
-    .revealed-title {
-      font-size: 22px;
-      font-weight: 800;
-      color: var(--ah-blue);
-      margin-bottom: 8px;
-    }
-
-    .revealed-sub {
-      font-size: 15px;
-      color: var(--ah-text-light);
-    }
-
-    /* Finished */
+    /* ── Finished ── */
     #finished-view {
       flex: 1;
       display: flex;
@@ -243,21 +174,9 @@
       justify-content: center;
       text-align: center;
     }
-
-    .progress-bar-mini {
-      height: 4px;
-      border-radius: 100px;
-      background: var(--ah-border);
-      overflow: hidden;
-      margin-bottom: 20px;
-    }
-
-    .progress-fill-mini {
-      height: 100%;
-      background: var(--ah-blue);
-      border-radius: 100px;
-      transition: width 0.4s ease;
-    }
+    .finished-icon  { font-size: 60px; margin-bottom: 16px; }
+    .finished-title { font-size: 22px; font-weight: 900; color: var(--ah-blue); margin-bottom: 8px; }
+    .finished-sub   { font-size: 15px; color: var(--ah-text-light); line-height: 1.5; }
   </style>
 </head>
 <body>
@@ -265,44 +184,42 @@
 <header class="ah-header">
   <div class="ah-logo">AH</div>
   <div class="ah-header-title">Retro Quiz</div>
-  <div class="ah-header-sub" id="header-sub" style="margin-left:auto">Stemmen</div>
-  <a href="/" style="color:white; font-size:13px; font-weight:600; text-decoration:none; opacity:0.8; margin-left:16px;">← Terug</a>
+  <span id="header-sub" style="margin-left:auto; font-size:13px; opacity:0.8; font-weight:600">Stemmen</span>
+  <a href="/" style="color:white; font-size:13px; font-weight:600; text-decoration:none; opacity:0.75; margin-left:16px;">← Terug</a>
 </header>
 
 <div class="vote-layout">
 
-  <!-- Waiting for host to start -->
+  <!-- Waiting -->
   <div id="waiting-view">
     <div class="waiting-icon">⏳</div>
     <div class="waiting-title">Even geduld...</div>
-    <div class="waiting-sub">De host start de quiz zo.<br>Je kunt dan stemmen!</div>
+    <div class="waiting-sub">De host start de quiz zo.<br>Dan kun jij stemmen!</div>
   </div>
 
-  <!-- Active question (voting) -->
+  <!-- Voting -->
   <div id="voting-view" class="hidden">
-    <div class="progress-bar-mini">
-      <div class="progress-fill-mini" id="mobile-progress" style="width:0%"></div>
+    <div class="progress-mini">
+      <div class="progress-mini-fill" id="mobile-progress" style="width:0%"></div>
     </div>
 
-    <div class="question-area">
-      <div class="question-card-mobile">
-        <span class="q-emoji" id="m-emoji">💡</span>
-        <div class="q-counter" id="m-counter">Vraag 1</div>
-        <div class="q-text" id="m-question">Laden...</div>
-      </div>
+    <div class="question-card-mobile">
+      <span class="q-emoji" id="m-emoji">💡</span>
+      <div class="q-counter" id="m-counter">Vraag 1 van 20</div>
+      <div class="q-text" id="m-question">Laden...</div>
     </div>
 
     <div class="vote-grid" id="vote-grid"></div>
   </div>
 
-  <!-- Voted confirmation -->
+  <!-- Voted -->
   <div id="voted-view" class="hidden">
     <div class="voted-icon">✅</div>
     <div class="voted-title">Stem uitgebracht!</div>
     <div class="voted-for">Jij stemde op:</div>
-    <div class="voted-name" id="voted-for-name"></div>
+    <div class="voted-chip" id="voted-for-name"></div>
     <div class="voted-wait">
-      <div class="live-dot" style="display:inline-block"></div>
+      <div class="live-dot"></div>
       Wachten op de uitslag...
     </div>
   </div>
@@ -316,9 +233,9 @@
 
   <!-- Finished -->
   <div id="finished-view" class="hidden">
-    <div style="font-size: 64px; margin-bottom: 20px;">🎊</div>
-    <div style="font-size: 24px; font-weight: 900; color: var(--ah-blue); margin-bottom: 10px;">Klaar!</div>
-    <div style="font-size: 16px; color: var(--ah-text-light);">De retro is afgerond.<br>Dankjewel voor je deelname!</div>
+    <div class="finished-icon">🎊</div>
+    <div class="finished-title">Retro voltooid!</div>
+    <div class="finished-sub">Kijk op het grote scherm<br>voor de teamkwaliteiten.<br><br>Dankjewel voor je deelname!</div>
   </div>
 
 </div>
@@ -327,7 +244,6 @@
 <script>
   const socket = io({ transports: ['websocket', 'polling'] });
 
-  // Generate/retrieve voter ID
   let voterId = localStorage.getItem('retro-voter-id');
   if (!voterId) {
     voterId = 'voter-' + Math.random().toString(36).slice(2, 10);
@@ -337,101 +253,71 @@
   let myVote = null;
   let lastQuestion = null;
 
-  const MEMBER_INITIALS = {
-    'Myrthe': 'My',
-    'Melanie': 'Me',
-    'Joëlle': 'Jo',
-    'Maarten': 'Ma',
-    'Walter': 'Wa',
-    'Lara': 'La',
-  };
+  const INITIALS = { Myrthe:'My', Melanie:'Me', 'Joëlle':'Jo', Maarten:'Ma', Walter:'Wa', Lara:'La' };
+
+  const VIEWS = ['waiting-view','voting-view','voted-view','revealed-view','finished-view'];
+  function showView(id) {
+    VIEWS.forEach(v => document.getElementById(v).classList.add('hidden'));
+    document.getElementById(id).classList.remove('hidden');
+  }
 
   socket.on('state', (state) => {
-    renderMobileState(state);
-  });
-
-  function renderMobileState(state) {
-    // Hide all views
-    ['waiting-view', 'voting-view', 'voted-view', 'revealed-view', 'finished-view']
-      .forEach(id => document.getElementById(id).classList.add('hidden'));
-
     document.getElementById('header-sub').textContent =
-      state.phase !== 'waiting' ? `Vraag ${state.currentQuestion + 1}/${state.totalQuestions}` : 'Stemmen';
+      state.phase === 'waiting' ? 'Stemmen' : `Vraag ${state.currentQuestion + 1}/${state.totalQuestions}`;
 
     if (state.phase === 'waiting') {
-      document.getElementById('waiting-view').classList.remove('hidden');
-      myVote = null;
-      lastQuestion = null;
+      myVote = null; lastQuestion = null;
+      showView('waiting-view');
       return;
     }
 
-    // New question — reset vote
     if (state.currentQuestion !== lastQuestion) {
       myVote = null;
       lastQuestion = state.currentQuestion;
     }
 
-    if (state.phase === 'finished') {
-      document.getElementById('finished-view').classList.remove('hidden');
-      return;
-    }
+    if (state.phase === 'finished') { showView('finished-view'); return; }
 
-    // Update question display
     document.getElementById('m-emoji').textContent = state.question.emoji;
     document.getElementById('m-counter').textContent = `Vraag ${state.currentQuestion + 1} van ${state.totalQuestions}`;
     document.getElementById('m-question').textContent = state.question.text;
-
-    const progress = ((state.currentQuestion) / state.totalQuestions) * 100;
-    document.getElementById('mobile-progress').style.width = progress + '%';
+    document.getElementById('mobile-progress').style.width = (state.currentQuestion / state.totalQuestions * 100) + '%';
 
     if (state.phase === 'voting') {
       if (myVote) {
-        // Already voted this question — show confirmation
         document.getElementById('voted-for-name').textContent = myVote;
-        document.getElementById('voted-view').classList.remove('hidden');
+        showView('voted-view');
       } else {
-        document.getElementById('voting-view').classList.remove('hidden');
         renderVoteGrid(state.teamMembers);
+        showView('voting-view');
       }
     } else if (state.phase === 'revealed') {
-      document.getElementById('revealed-view').classList.remove('hidden');
+      showView('revealed-view');
     }
-  }
+  });
 
   function renderVoteGrid(members) {
-    const grid = document.getElementById('vote-grid');
-    grid.innerHTML = members.map(name => `
+    document.getElementById('vote-grid').innerHTML = members.map(name => `
       <button class="vote-btn" onclick="castVote('${name}')" id="btn-${name}">
-        <div class="member-avatar">${MEMBER_INITIALS[name] || name.slice(0,2)}</div>
+        <div class="member-avatar">${INITIALS[name] || name.slice(0,2)}</div>
         ${name}
-      </button>
-    `).join('');
+      </button>`).join('');
   }
 
-  function castVote(memberName) {
-    if (myVote) return; // Already voted
+  function castVote(name) {
+    if (myVote) return;
+    socket.emit('vote', { voterId, memberName: name });
+    myVote = name;
 
-    socket.emit('vote', { voterId, memberName });
-
-    myVote = memberName;
-
-    // Visual feedback
     document.querySelectorAll('.vote-btn').forEach(btn => {
       btn.disabled = true;
-      if (btn.id === `btn-${memberName}`) {
-        btn.classList.add('selected');
-      } else {
-        btn.classList.add('not-selected');
-      }
+      btn.classList.add(btn.id === `btn-${name}` ? 'selected' : 'not-selected');
     });
 
-    // Show confirmation after brief animation
     setTimeout(() => {
-      document.getElementById('voted-for-name').textContent = memberName;
-      ['waiting-view', 'voting-view', 'revealed-view', 'finished-view']
-        .forEach(id => document.getElementById(id).classList.add('hidden'));
-      document.getElementById('voted-view').classList.remove('hidden');
-    }, 400);
+      document.getElementById('voted-for-name').textContent = name;
+      showView('voted-view');
+    }, 380);
   }
 </script>
 

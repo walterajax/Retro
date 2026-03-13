@@ -7,182 +7,63 @@
   <link rel="stylesheet" href="style.css">
   <style>
     .host-layout {
-      max-width: 900px;
+      max-width: 860px;
       margin: 0 auto;
-      padding: 32px 24px;
+      padding: 28px 20px 40px;
     }
 
-    .question-card {
-      text-align: center;
-      padding: 48px 40px;
-      margin-bottom: 24px;
-    }
-
-    .question-emoji {
-      font-size: 64px;
-      margin-bottom: 20px;
-      display: block;
-    }
-
-    .question-counter {
-      font-size: 13px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      color: var(--ah-blue);
-      margin-bottom: 16px;
-    }
-
-    .question-text {
-      font-size: 28px;
-      font-weight: 800;
-      line-height: 1.3;
-      color: var(--ah-text);
-      letter-spacing: -0.5px;
-    }
-
-    /* Waiting screen */
+    /* ── Waiting ── */
     #waiting-screen {
       text-align: center;
-      padding: 80px 40px;
+      padding: 56px 40px;
     }
 
-    .waiting-logo {
-      font-size: 80px;
-      margin-bottom: 24px;
+    .waiting-logo-wrap {
+      width: 88px;
+      height: 88px;
+      background: var(--ah-blue);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 30px;
+      font-weight: 900;
+      color: white;
+      letter-spacing: -1px;
+      margin: 0 auto 24px;
     }
 
     .waiting-title {
-      font-size: 36px;
+      font-size: 34px;
       font-weight: 900;
-      color: var(--ah-blue);
-      margin-bottom: 12px;
+      color: var(--ah-text);
+      letter-spacing: -0.5px;
+      margin-bottom: 10px;
     }
 
     .waiting-sub {
-      font-size: 18px;
+      font-size: 17px;
       color: var(--ah-text-light);
-      margin-bottom: 40px;
+      margin-bottom: 32px;
+      line-height: 1.5;
     }
 
-    /* Live voting indicators */
-    .voting-status {
-      display: flex;
+    .url-chip {
+      display: inline-flex;
       align-items: center;
-      justify-content: center;
-      gap: 12px;
-      margin: 24px 0;
-    }
-
-    .live-dot {
-      width: 10px;
-      height: 10px;
-      background: #00A854;
-      border-radius: 50%;
-      animation: pulse 1.5s infinite;
-    }
-
-    .live-text {
-      font-size: 14px;
-      font-weight: 700;
-      color: #00A854;
-    }
-
-    /* Results bars */
-    .results-container {
-      margin-top: 16px;
-    }
-
-    .result-row {
-      margin-bottom: 14px;
-      animation: fadeIn 0.5s ease forwards;
-    }
-
-    .result-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 6px;
-    }
-
-    .result-name {
-      font-size: 16px;
-      font-weight: 700;
-      color: var(--ah-text);
-    }
-
-    .result-count {
-      font-size: 14px;
+      gap: 8px;
+      background: var(--ah-blue-light);
+      border: 1.5px solid var(--ah-blue);
+      border-radius: 100px;
+      padding: 10px 20px;
+      font-size: 15px;
       font-weight: 700;
       color: var(--ah-blue);
-      background: var(--ah-blue-light);
-      padding: 2px 10px;
-      border-radius: 100px;
+      margin-bottom: 28px;
     }
 
-    .result-bar-bg {
-      background: var(--ah-border);
-      border-radius: 100px;
-      height: 20px;
-      overflow: hidden;
-    }
-
-    .result-bar-fill {
-      background: linear-gradient(90deg, var(--ah-blue), var(--ah-blue-mid));
-      height: 100%;
-      border-radius: 100px;
-      transition: width 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
-      min-width: 4px;
-    }
-
-    .result-bar-fill.winner {
-      background: linear-gradient(90deg, var(--ah-orange), #FF9500);
-    }
-
-    /* Winner announcement */
-    .winner-card {
-      text-align: center;
-      background: linear-gradient(135deg, var(--ah-orange-light), #FFF8F0);
-      border: 2px solid var(--ah-orange);
-      border-radius: var(--ah-radius-lg);
-      padding: 24px;
-      margin-bottom: 24px;
-    }
-
-    .winner-label {
-      font-size: 13px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      color: var(--ah-orange);
-      margin-bottom: 8px;
-    }
-
-    .winner-name {
-      font-size: 32px;
-      font-weight: 900;
-      color: var(--ah-text);
-    }
-
-    .winner-emoji {
-      font-size: 40px;
-      margin-right: 12px;
-    }
-
-    /* Controls */
-    .controls {
-      display: flex;
-      gap: 12px;
-      justify-content: center;
-      flex-wrap: wrap;
-      margin-top: 24px;
-    }
-
-    /* Progress section */
-    .progress-section {
-      margin-bottom: 24px;
-    }
-
+    /* ── Progress ── */
+    .progress-section { margin-bottom: 20px; }
     .progress-info {
       display: flex;
       justify-content: space-between;
@@ -193,46 +74,243 @@
       color: var(--ah-text-light);
     }
 
-    /* Finished screen */
-    #finished-screen {
+    /* ── Question card ── */
+    .question-card {
       text-align: center;
-      padding: 60px 40px;
-    }
-
-    .finished-emoji {
-      font-size: 80px;
+      padding: 48px 40px;
       margin-bottom: 20px;
     }
 
-    .finished-title {
-      font-size: 32px;
-      font-weight: 900;
-      color: var(--ah-blue);
-      margin-bottom: 12px;
+    .question-emoji {
+      font-size: 56px;
+      display: block;
+      margin-bottom: 16px;
     }
 
-    .finished-sub {
-      font-size: 18px;
-      color: var(--ah-text-light);
-      margin-bottom: 36px;
-    }
-
-    /* QR hint */
-    .url-hint {
+    .question-label {
+      display: inline-block;
       background: var(--ah-blue-light);
-      border: 1px solid var(--ah-blue);
-      border-radius: var(--ah-radius);
-      padding: 12px 20px;
+      color: var(--ah-blue);
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      padding: 4px 12px;
+      border-radius: 100px;
+      margin-bottom: 14px;
+    }
+
+    .question-text {
+      font-size: 26px;
+      font-weight: 800;
+      line-height: 1.3;
+      color: var(--ah-text);
+      letter-spacing: -0.4px;
+    }
+
+    /* ── Voting status ── */
+    .voting-status {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin: 20px 0;
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--ah-success);
+    }
+
+    /* ── Winner ── */
+    .winner-banner {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      background: linear-gradient(135deg, #FFF5ED, #FFEDE0);
+      border: 1.5px solid var(--ah-orange);
+      border-radius: var(--ah-radius-lg);
+      padding: 20px 28px;
+      margin-bottom: 20px;
+    }
+
+    .winner-trophy { font-size: 44px; }
+
+    .winner-label {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--ah-orange);
+      margin-bottom: 4px;
+    }
+
+    .winner-name-text {
+      font-size: 30px;
+      font-weight: 900;
+      color: var(--ah-text);
+      letter-spacing: -0.5px;
+    }
+
+    /* ── Results ── */
+    .result-row { margin-bottom: 12px; }
+    .result-row-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 5px;
+    }
+    .result-name {
       font-size: 15px;
       font-weight: 700;
+      color: var(--ah-text);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .result-count {
+      font-size: 13px;
+      font-weight: 700;
       color: var(--ah-blue);
-      text-align: center;
-      margin-bottom: 24px;
+      background: var(--ah-blue-light);
+      padding: 2px 10px;
+      border-radius: 100px;
+    }
+    .result-bar-bg {
+      background: var(--ah-border);
+      border-radius: 100px;
+      height: 16px;
+      overflow: hidden;
+    }
+    .result-bar-fill {
+      background: linear-gradient(90deg, var(--ah-blue), var(--ah-blue-mid));
+      height: 100%;
+      border-radius: 100px;
+      min-width: 4px;
+      transition: width 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .result-bar-fill.winner {
+      background: linear-gradient(90deg, var(--ah-orange), #FF9A3C);
     }
 
-    .url-hint span {
-      opacity: 0.7;
-      font-weight: 500;
+    /* ── Controls ── */
+    .controls {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 24px;
+    }
+
+    /* ── Finished / Qualities screen ── */
+    #finished-screen { padding-bottom: 40px; }
+
+    .qualities-header {
+      text-align: center;
+      padding: 40px 20px 32px;
+    }
+
+    .qualities-trophy {
+      font-size: 56px;
+      margin-bottom: 14px;
+    }
+
+    .qualities-title {
+      font-size: 32px;
+      font-weight: 900;
+      color: var(--ah-text);
+      letter-spacing: -0.5px;
+      margin-bottom: 8px;
+    }
+
+    .qualities-sub {
+      font-size: 16px;
+      color: var(--ah-text-light);
+    }
+
+    .qualities-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+
+    .person-card {
+      background: white;
+      border-radius: var(--ah-radius-lg);
+      box-shadow: var(--ah-shadow);
+      padding: 24px 20px;
+      animation: popIn 0.5s ease forwards;
+    }
+
+    .person-header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 16px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--ah-border);
+    }
+
+    .person-avatar {
+      width: 48px;
+      height: 48px;
+      background: var(--ah-blue);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 17px;
+      font-weight: 900;
+      color: white;
+      letter-spacing: -0.5px;
+      flex-shrink: 0;
+    }
+
+    .person-name {
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--ah-text);
+    }
+
+    .person-wins {
+      font-size: 12px;
+      color: var(--ah-text-light);
+      font-weight: 600;
+      margin-top: 2px;
+    }
+
+    .quality-tags {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+
+    .quality-tag {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--ah-text);
+      background: var(--ah-bg);
+      border-radius: 8px;
+      padding: 7px 10px;
+    }
+
+    .quality-tag-emoji { font-size: 16px; }
+
+    .no-wins-card {
+      background: white;
+      border-radius: var(--ah-radius-lg);
+      box-shadow: var(--ah-shadow);
+      padding: 24px;
+      text-align: center;
+      color: var(--ah-text-light);
+      font-size: 14px;
+      margin-bottom: 32px;
+    }
+
+    .initials-map {
+      display: none;
     }
   </style>
 </head>
@@ -241,66 +319,61 @@
 <header class="ah-header">
   <div class="ah-logo">AH</div>
   <div class="ah-header-title">Retro Quiz</div>
-  <div class="ah-header-sub" id="header-sub" style="margin-left:auto">Host scherm</div>
-  <a href="/" style="color:white; font-size:13px; font-weight:600; text-decoration:none; opacity:0.8; margin-left:16px;">← Terug</a>
+  <span id="header-sub" style="margin-left:auto; font-size:13px; opacity:0.8; font-weight:600">Host</span>
+  <a href="/" style="color:white; font-size:13px; font-weight:600; text-decoration:none; opacity:0.75; margin-left:16px;">← Terug</a>
 </header>
 
 <div class="host-layout">
 
-  <!-- Waiting screen -->
+  <!-- ── Waiting ── -->
   <div id="waiting-screen" class="card fade-in">
-    <div class="waiting-logo">🛒</div>
-    <div class="waiting-title">AH Retro Quiz</div>
-    <div class="waiting-sub">Klaar om te beginnen? Zorg dat iedereen<br>verbonden is via het stemmenscherm.</div>
-    <div class="url-hint">
-      <span>Stemmen via: </span><span id="vote-url"></span>
-    </div>
-    <button class="btn btn-primary btn-large" onclick="hostStart()">
-      🚀 Start de quiz
-    </button>
+    <div class="waiting-logo-wrap">AH</div>
+    <div class="waiting-title">Sprint Retro Quiz</div>
+    <div class="waiting-sub">Zorg dat iedereen verbonden is,<br>dan kan de quiz beginnen.</div>
+    <div class="url-chip">📱 <span id="vote-url"></span></div><br>
+    <button class="btn btn-primary btn-large" onclick="hostStart()">🚀 Start de quiz</button>
   </div>
 
-  <!-- Quiz screen -->
+  <!-- ── Quiz ── -->
   <div id="quiz-screen" class="hidden">
 
     <div class="progress-section fade-in">
       <div class="progress-info">
-        <span id="progress-label">Vraag 1 van 8</span>
-        <div class="vote-badge">
-          <span id="vote-count">0</span> stemmen
-        </div>
+        <span id="progress-label">Vraag 1 van 20</span>
+        <div class="vote-badge"><span id="vote-count">0</span> stemmen</div>
       </div>
       <div class="progress-bar">
-        <div class="progress-fill" id="progress-fill" style="width: 0%"></div>
+        <div class="progress-fill" id="progress-fill" style="width:0%"></div>
       </div>
     </div>
 
-    <div class="card question-card fade-in">
+    <div class="card question-card">
       <span class="question-emoji" id="question-emoji">💡</span>
-      <div class="question-counter" id="question-counter">Vraag 1</div>
+      <div class="question-label" id="question-counter">Vraag 1</div>
       <div class="question-text" id="question-text">Laden...</div>
     </div>
 
     <div id="voting-phase">
       <div class="voting-status">
         <div class="live-dot"></div>
-        <div class="live-text">Live – wachten op stemmen</div>
+        Live – wachten op stemmen
       </div>
       <div class="controls">
-        <button class="btn btn-orange btn-large" onclick="hostReveal()">
-          🎯 Ontdek de winnaar
-        </button>
+        <button class="btn btn-orange btn-large" onclick="hostReveal()">🎯 Ontdek de winnaar</button>
       </div>
     </div>
 
     <div id="revealed-phase" class="hidden">
-      <div id="winner-announcement" class="winner-card scale-in hidden">
-        <div class="winner-label">🏆 Meeste stemmen</div>
-        <div class="winner-name"><span class="winner-emoji">🎉</span><span id="winner-name-text"></span></div>
+      <div id="winner-announcement" class="winner-banner scale-in hidden">
+        <div class="winner-trophy">🏆</div>
+        <div>
+          <div class="winner-label">Meeste stemmen</div>
+          <div class="winner-name-text" id="winner-name-text"></div>
+        </div>
       </div>
 
       <div class="card">
-        <div class="results-container" id="results-container"></div>
+        <div id="results-container"></div>
       </div>
 
       <div class="controls">
@@ -312,135 +385,167 @@
 
   </div>
 
-  <!-- Finished screen -->
-  <div id="finished-screen" class="card hidden">
-    <div class="finished-emoji">🎊</div>
-    <div class="finished-title">Retro voltooid!</div>
-    <div class="finished-sub">Bedankt voor het meedoen.<br>Jullie zijn een geweldig team!</div>
-    <button class="btn btn-primary btn-large" onclick="hostRestart()">
-      🔄 Opnieuw beginnen
-    </button>
+  <!-- ── Finished / Qualities ── -->
+  <div id="finished-screen" class="hidden">
+    <div class="qualities-header">
+      <div class="qualities-trophy">🏆</div>
+      <div class="qualities-title">Teamkwaliteiten</div>
+      <div class="qualities-sub">Zo ziet jullie team eruit — gebaseerd op jullie stemmen</div>
+    </div>
+
+    <div class="qualities-grid" id="qualities-grid"></div>
+
+    <div class="controls">
+      <button class="btn btn-primary btn-large" onclick="hostRestart()">🔄 Opnieuw beginnen</button>
+    </div>
   </div>
 
 </div>
 
 <script src="/socket.io/socket.io.js"></script>
 <script>
-  // Dynamische URL voor stemmenscherm
   document.getElementById('vote-url').textContent = window.location.host + '/vote.html';
 
   const socket = io({ transports: ['websocket', 'polling'] });
+  socket.on('connect', () => console.log('Verbonden'));
+  socket.on('connect_error', (e) => console.error('Fout:', e));
 
-  socket.on('connect', () => console.log('Verbonden met server'));
-  socket.on('connect_error', (err) => console.error('Verbindingsfout:', err));
+  const INITIALS = { Myrthe:'My', Melanie:'Me', 'Joëlle':'Jo', Maarten:'Ma', Walter:'Wa', Lara:'La' };
 
-  socket.on('state', (state) => {
-    renderState(state);
-  });
+  socket.on('state', renderState);
 
   function renderState(state) {
-    const waiting = document.getElementById('waiting-screen');
-    const quiz = document.getElementById('quiz-screen');
-    const finished = document.getElementById('finished-screen');
+    ['waiting-screen','quiz-screen','finished-screen'].forEach(id =>
+      document.getElementById(id).classList.add('hidden')
+    );
 
-    waiting.classList.add('hidden');
-    quiz.classList.add('hidden');
-    finished.classList.add('hidden');
+    document.getElementById('header-sub').textContent =
+      state.phase === 'waiting' ? 'Host' :
+      state.phase === 'finished' ? 'Klaar!' :
+      `Vraag ${state.currentQuestion + 1} / ${state.totalQuestions}`;
 
     if (state.phase === 'waiting') {
-      waiting.classList.remove('hidden');
-      document.getElementById('header-sub').textContent = 'Wachten op start';
-      return;
+      document.getElementById('waiting-screen').classList.remove('hidden');
+    } else if (state.phase === 'finished') {
+      document.getElementById('finished-screen').classList.remove('hidden');
+      renderQualities(state.allResults, state.teamMembers);
+    } else {
+      document.getElementById('quiz-screen').classList.remove('hidden');
+      renderQuiz(state);
     }
+  }
 
-    if (state.phase === 'finished') {
-      finished.classList.remove('hidden');
-      document.getElementById('header-sub').textContent = 'Klaar!';
-      return;
-    }
-
-    quiz.classList.remove('hidden');
-
-    // Update question
+  function renderQuiz(state) {
     document.getElementById('question-emoji').textContent = state.question.emoji;
-    document.getElementById('question-counter').textContent = `Vraag ${state.currentQuestion + 1}`;
+    document.getElementById('question-counter').textContent = `Vraag ${state.currentQuestion + 1} van ${state.totalQuestions}`;
     document.getElementById('question-text').textContent = state.question.text;
     document.getElementById('progress-label').textContent = `Vraag ${state.currentQuestion + 1} van ${state.totalQuestions}`;
     document.getElementById('vote-count').textContent = state.totalVotes;
-    document.getElementById('header-sub').textContent = `Vraag ${state.currentQuestion + 1} / ${state.totalQuestions}`;
+    document.getElementById('progress-fill').style.width = (state.currentQuestion / state.totalQuestions * 100) + '%';
 
-    const progress = ((state.currentQuestion) / state.totalQuestions) * 100;
-    document.getElementById('progress-fill').style.width = progress + '%';
-
-    const votingPhase = document.getElementById('voting-phase');
-    const revealedPhase = document.getElementById('revealed-phase');
+    const voting = document.getElementById('voting-phase');
+    const revealed = document.getElementById('revealed-phase');
     const nextBtn = document.getElementById('next-btn');
 
     if (state.phase === 'voting') {
-      votingPhase.classList.remove('hidden');
-      revealedPhase.classList.add('hidden');
+      voting.classList.remove('hidden');
+      revealed.classList.add('hidden');
     } else if (state.phase === 'revealed') {
-      votingPhase.classList.add('hidden');
-      revealedPhase.classList.remove('hidden');
-
-      const isLast = state.currentQuestion >= state.totalQuestions - 1;
-      nextBtn.textContent = isLast ? '🎊 Bekijk eindscherm' : 'Volgende vraag ➡️';
-
+      voting.classList.add('hidden');
+      revealed.classList.remove('hidden');
+      nextBtn.textContent = state.currentQuestion >= state.totalQuestions - 1
+        ? '🏆 Bekijk teamkwaliteiten' : 'Volgende vraag ➡️';
       renderResults(state);
     }
   }
 
   function renderResults(state) {
     const container = document.getElementById('results-container');
-    const winnerCard = document.getElementById('winner-announcement');
-
-    // Find max votes
+    const winnerEl = document.getElementById('winner-announcement');
     const maxVotes = Math.max(...Object.values(state.votes), 0);
-    const totalVotes = state.totalVotes;
 
-    if (totalVotes === 0) {
-      container.innerHTML = '<p style="text-align:center; color: var(--ah-text-light); padding: 20px;">Geen stemmen uitgebracht.</p>';
-      winnerCard.classList.add('hidden');
+    if (state.totalVotes === 0) {
+      container.innerHTML = '<p style="text-align:center;color:var(--ah-text-light);padding:16px">Geen stemmen uitgebracht.</p>';
+      winnerEl.classList.add('hidden');
       return;
     }
 
-    // Sort by votes descending
     const sorted = state.teamMembers
-      .map(name => ({ name, votes: state.votes[name] || 0 }))
+      .map(n => ({ name: n, votes: state.votes[n] || 0 }))
       .sort((a, b) => b.votes - a.votes);
 
-    // Winner
-    const winner = sorted[0];
-    if (winner.votes > 0) {
-      winnerCard.classList.remove('hidden');
-      document.getElementById('winner-name-text').textContent = winner.name;
-    } else {
-      winnerCard.classList.add('hidden');
-    }
+    winnerEl.classList.remove('hidden');
+    document.getElementById('winner-name-text').textContent = sorted[0].name;
 
-    // Bars
     container.innerHTML = sorted.map((item, i) => {
-      const pct = totalVotes > 0 ? (item.votes / maxVotes) * 100 : 0;
-      const isWinner = item.votes === maxVotes && item.votes > 0;
-      const delay = i * 80;
+      const pct = (item.votes / maxVotes) * 100;
+      const isWinner = item.votes === maxVotes;
       return `
-        <div class="result-row" style="animation-delay: ${delay}ms">
-          <div class="result-header">
-            <div class="result-name">${item.votes === maxVotes && item.votes > 0 ? '🏆 ' : ''}${item.name}</div>
+        <div class="result-row" style="animation: fadeIn 0.4s ease ${i*70}ms both">
+          <div class="result-row-header">
+            <div class="result-name">${isWinner ? '🏆 ' : ''}${item.name}</div>
             <div class="result-count">${item.votes} stem${item.votes !== 1 ? 'men' : ''}</div>
           </div>
           <div class="result-bar-bg">
             <div class="result-bar-fill ${isWinner ? 'winner' : ''}"
-                 style="width: ${pct}%; animation: barGrow 0.8s ease ${delay}ms both"></div>
+                 style="width:${pct}%; animation: barGrow 0.8s ease ${i*70}ms both"></div>
           </div>
-        </div>
-      `;
+        </div>`;
     }).join('');
   }
 
-  function hostStart() { socket.emit('host-start'); }
-  function hostReveal() { socket.emit('host-reveal'); }
-  function hostNext() { socket.emit('host-next'); }
+  function renderQualities(allResults, teamMembers) {
+    const grid = document.getElementById('qualities-grid');
+
+    // Build per-person quality map
+    const personMap = {};
+    teamMembers.forEach(name => { personMap[name] = []; });
+
+    allResults.forEach(result => {
+      result.winners.forEach(winner => {
+        personMap[winner].push({ emoji: result.question.emoji, label: result.question.label });
+      });
+    });
+
+    // Sort: most wins first
+    const sorted = teamMembers
+      .map(name => ({ name, qualities: personMap[name] }))
+      .sort((a, b) => b.qualities.length - a.qualities.length);
+
+    const winners = sorted.filter(p => p.qualities.length > 0);
+    const noWins = sorted.filter(p => p.qualities.length === 0);
+
+    if (winners.length === 0) {
+      grid.innerHTML = '<div class="no-wins-card">Er zijn geen stemmen uitgebracht.</div>';
+      return;
+    }
+
+    grid.innerHTML = winners.map((person, i) => `
+      <div class="person-card" style="animation-delay: ${i * 80}ms">
+        <div class="person-header">
+          <div class="person-avatar">${INITIALS[person.name] || person.name.slice(0,2)}</div>
+          <div>
+            <div class="person-name">${person.name}</div>
+            <div class="person-wins">${person.qualities.length} kwaliteit${person.qualities.length !== 1 ? 'en' : ''}</div>
+          </div>
+        </div>
+        <div class="quality-tags">
+          ${person.qualities.map(q => `
+            <div class="quality-tag">
+              <span class="quality-tag-emoji">${q.emoji}</span>
+              ${q.label}
+            </div>`).join('')}
+        </div>
+      </div>
+    `).join('') + (noWins.length > 0 ? `
+      <div class="no-wins-card">
+        ${noWins.map(p => p.name).join(', ')} kregen geen meerderheid van stemmen.
+      </div>` : '');
+  }
+
+  function hostStart()   { socket.emit('host-start'); }
+  function hostReveal()  { socket.emit('host-reveal'); }
+  function hostNext()    { socket.emit('host-next'); }
   function hostRestart() { socket.emit('host-restart'); }
 </script>
 
