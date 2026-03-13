@@ -8,6 +8,10 @@ const io = new Server(server);
 
 app.use(express.static('public'));
 
+app.get('/', (req, res) => {
+  res.sendFile('index.html', { root: 'public' });
+});
+
 const TEAM_MEMBERS = ['Myrthe', 'Melanie', 'Joëlle', 'Maarten', 'Walter', 'Lara'];
 
 const QUESTIONS = [
