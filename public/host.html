@@ -341,6 +341,40 @@
     }
     .comment-bubble:last-child { margin-bottom: 0; }
 
+    /* ── Countdown overlay ── */
+    #countdown-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 36, 90, 0.92);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+    #countdown-overlay.hidden { display: none; }
+    .countdown-label {
+      font-size: 18px;
+      font-weight: 700;
+      color: rgba(255,255,255,0.7);
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin-bottom: 24px;
+    }
+    .countdown-num {
+      font-size: 220px;
+      font-weight: 900;
+      color: white;
+      line-height: 1;
+      letter-spacing: -6px;
+      animation: countPop 0.85s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    }
+    @keyframes countPop {
+      0%   { transform: scale(2); opacity: 0; }
+      50%  { opacity: 1; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
     /* ── Floating emoji reactions ── */
     #reaction-overlay {
       position: fixed;
@@ -373,6 +407,10 @@
 </header>
 
 <div id="reaction-overlay"></div>
+<div id="countdown-overlay" class="hidden">
+  <div class="countdown-label">Alle stemmen zijn binnen!</div>
+  <div id="countdown-num-wrap"></div>
+</div>
 <div class="host-layout">
 
   <!-- ── Waiting ── -->
@@ -417,15 +455,15 @@
         <span id="voting-status-text">Wachten op stemmen</span>
       </div>
       <div class="controls">
-        <button class="btn btn-orange btn-large" onclick="hostReveal()">🎯 Ontdek de winnaar</button>
+        <button class="btn btn-orange btn-large" onclick="hostReveal()">🎯 Bekijk de uitslag</button>
       </div>
     </div>
 
     <div id="revealed-phase" class="hidden">
       <div id="winner-announcement" class="winner-banner scale-in hidden">
-        <div class="winner-trophy">🏆</div>
+        <div class="winner-trophy">⭐</div>
         <div>
-          <div class="winner-label">Meeste stemmen</div>
+          <div class="winner-label">Meeste punten</div>
           <div class="winner-name-text" id="winner-name-text"></div>
         </div>
       </div>
@@ -477,7 +515,47 @@
 
   const INITIALS = { Myrthe:'My', Melanie:'Me', 'Joëlle':'Jo', Maarten:'Ma', Walter:'Wa', Lara:'La' };
 
+  let countdownRunning = false;
+  let lastCountdownQuestion = -1;
+  let lastSeenQuestion = 0;
+
+  function startCountdown(questionIndex) {
+    if (countdownRunning) return;
+    if (lastCountdownQuestion === questionIndex) return;
+    countdownRunning = true;
+    lastCountdownQuestion = questionIndex;
+
+    const overlay = document.getElementById('countdown-overlay');
+    const wrap = document.getElementById('countdown-num-wrap');
+    overlay.classList.remove('hidden');
+
+    function showNum(text) {
+      wrap.innerHTML = `<div class="countdown-num">${text}</div>`;
+    }
+
+    let count = 3;
+    showNum(count);
+    const interval = setInterval(() => {
+      count--;
+      if (count > 0) {
+        showNum(count);
+      } else {
+        clearInterval(interval);
+        showNum('🎯');
+        setTimeout(() => {
+          overlay.classList.add('hidden');
+          countdownRunning = false;
+          hostReveal();
+        }, 700);
+      }
+    }, 1000);
+  }
+
   socket.on('state', renderState);
+
+  socket.on('all-voted', () => {
+    startCountdown(lastSeenQuestion);
+  });
 
   function renderState(state) {
     ['waiting-screen','quiz-screen','finished-screen'].forEach(id =>
@@ -490,6 +568,8 @@
       `Vraag ${state.currentQuestion + 1} / ${state.totalQuestions}`;
 
     if (state.phase === 'waiting') {
+      countdownRunning = false;
+      lastCountdownQuestion = -1;
       document.getElementById('waiting-screen').classList.remove('hidden');
       const chips = document.getElementById('joined-chips');
       if (state.teamMembers.length === 0) {
@@ -522,10 +602,15 @@
     const nextBtn = document.getElementById('next-btn');
 
     if (state.phase === 'voting') {
+      lastSeenQuestion = state.currentQuestion;
       voting.classList.remove('hidden');
       revealed.classList.add('hidden');
       document.getElementById('voting-status-text').textContent =
         `${state.votedCount} van ${state.totalVoters} gestemd`;
+      // Fallback voor reconnects: als alle stemmen al binnen zijn bij verbinden
+      if (state.totalVoters > 0 && state.votedCount >= state.totalVoters) {
+        startCountdown(state.currentQuestion);
+      }
     } else if (state.phase === 'revealed') {
       voting.classList.add('hidden');
       revealed.classList.remove('hidden');
@@ -573,7 +658,7 @@
       return `
         <div class="result-row" style="animation: fadeIn 0.4s ease ${i*70}ms both">
           <div class="result-row-header">
-            <div class="result-name">${isWinner ? '🏆 ' : ''}${item.name}</div>
+            <div class="result-name">${isWinner ? '⭐ ' : ''}${item.name}</div>
             <div class="result-count">${item.votes} punt${item.votes !== 1 ? 'en' : ''}</div>
           </div>
           <div class="result-bar-bg">
@@ -629,7 +714,7 @@
       </div>
     `).join('') + (noWins.length > 0 ? `
       <div class="no-wins-card">
-        ${noWins.map(p => p.name).join(', ')} kregen geen meerderheid van stemmen.
+        ${noWins.map(p => p.name).join(', ')} kwamen niet als eerste uit een vraag.
       </div>` : '');
   }
 

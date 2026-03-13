@@ -126,6 +126,10 @@ io.on('connection', (socket) => {
         gameState.votes[name] = (gameState.votes[name] || 0) + points;
       }
     }
+    const members = getMemberList();
+    if (members.length > 0 && gameState.votedIds.size >= members.length) {
+      io.emit('all-voted');
+    }
     io.emit('state', getPublicState());
   });
 
