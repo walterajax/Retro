@@ -507,7 +507,8 @@
       return;
     }
 
-    if (state.currentQuestion !== lastQuestion) {
+    const isNewQuestion = state.currentQuestion !== lastQuestion;
+    if (isNewQuestion) {
       myVote = null;
       hasCommented = false;
       lastQuestion = state.currentQuestion;
@@ -526,8 +527,11 @@
       if (myVote) {
         showView('voted-view');
       } else {
-        const others = state.teamMembers.filter(n => n !== myName);
-        renderPointsList(others);
+        // Only rebuild the list when it's a new question, not on every state update
+        if (isNewQuestion) {
+          const others = state.teamMembers.filter(n => n !== myName);
+          renderPointsList(others);
+        }
         showView('voting-view');
       }
     } else if (state.phase === 'revealed') {
