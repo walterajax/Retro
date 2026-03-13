@@ -63,6 +63,7 @@ let gameState = {
   phase: 'waiting',
   votes: {},
   votedIds: new Set(),
+  comments: [],
 };
 
 function saveCurrentQuestionResult() {
@@ -87,6 +88,7 @@ function getPublicState() {
     totalQuestions: QUESTIONS.length,
     teamMembers: getMemberList(),
     allResults,
+    comments: gameState.comments,
   };
 }
 
@@ -125,12 +127,27 @@ io.on('connection', (socket) => {
     io.emit('state', getPublicState());
   });
 
+  socket.on('comment', ({ text }) => {
+    if (gameState.phase !== 'voting') return;
+    const trimmed = (text || '').trim().slice(0, 200);
+    if (!trimmed) return;
+    gameState.comments.push(trimmed);
+    io.emit('state', getPublicState());
+  });
+
+  socket.on('react', ({ emoji }) => {
+    const allowed = ['👏', '🔥', '😂', '🎉', '❤️'];
+    if (!allowed.includes(emoji)) return;
+    io.emit('reaction', { emoji });
+  });
+
   socket.on('host-start', () => {
     allResults = [];
     gameState.currentQuestion = 0;
     gameState.phase = 'voting';
     gameState.votes = {};
     gameState.votedIds = new Set();
+    gameState.comments = [];
     io.emit('state', getPublicState());
   });
 
@@ -148,6 +165,7 @@ io.on('connection', (socket) => {
       gameState.phase = 'voting';
       gameState.votes = {};
       gameState.votedIds = new Set();
+      gameState.comments = [];
     } else {
       gameState.phase = 'finished';
     }
@@ -161,6 +179,7 @@ io.on('connection', (socket) => {
     gameState.phase = 'waiting';
     gameState.votes = {};
     gameState.votedIds = new Set();
+    gameState.comments = [];
     io.emit('state', getPublicState());
   });
 });

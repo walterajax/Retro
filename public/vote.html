@@ -278,6 +278,60 @@
     .revealed-title { font-size: 20px; font-weight: 800; color: var(--ah-blue); margin-bottom: 6px; }
     .revealed-sub   { font-size: 14px; color: var(--ah-text-light); }
 
+    /* ── Comment box ── */
+    .comment-textarea {
+      width: 100%;
+      padding: 12px 14px;
+      border: 2px solid var(--ah-border);
+      border-radius: var(--ah-radius);
+      font-family: var(--font);
+      font-size: 14px;
+      color: var(--ah-text);
+      outline: none;
+      resize: none;
+      transition: border-color 0.15s;
+      line-height: 1.5;
+    }
+    .comment-textarea:focus { border-color: var(--ah-blue); }
+    .comment-sent {
+      text-align: center;
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--ah-success);
+      padding: 12px;
+      background: #E6F7EF;
+      border-radius: var(--ah-radius);
+    }
+
+    /* ── Reaction buttons ── */
+    .reaction-bar {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      margin-top: 24px;
+      flex-wrap: wrap;
+    }
+    .react-btn {
+      font-size: 32px;
+      background: white;
+      border: 2px solid var(--ah-border);
+      border-radius: 16px;
+      width: 60px;
+      height: 60px;
+      cursor: pointer;
+      transition: transform 0.1s, border-color 0.1s, box-shadow 0.1s;
+      -webkit-tap-highlight-color: transparent;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: var(--ah-shadow);
+    }
+    .react-btn:active {
+      transform: scale(0.82);
+      border-color: var(--ah-blue);
+      box-shadow: none;
+    }
+
     /* ── Finished ── */
     #finished-view {
       flex: 1;
@@ -353,6 +407,14 @@
     <div class="voted-title">Punten verdeeld!</div>
     <div class="voted-sub">Zo heb jij gestemd:</div>
     <div class="voted-summary" id="voted-summary"></div>
+    <div id="comment-section" style="width:100%; margin-bottom:16px">
+      <textarea id="comment-input" class="comment-textarea"
+        placeholder="Optioneel: anonieme toelichting voor de host..."
+        maxlength="200" rows="3"></textarea>
+      <button class="btn btn-secondary" style="width:100%;margin-top:8px" onclick="submitComment()">
+        💬 Stuur toelichting
+      </button>
+    </div>
     <div class="voted-wait">
       <div class="live-dot"></div>
       Wachten op de uitslag...
@@ -364,6 +426,13 @@
     <div class="revealed-icon">🎯</div>
     <div class="revealed-title">Uitslag bekend!</div>
     <div class="revealed-sub">Kijk op het grote scherm<br>voor de resultaten.</div>
+    <div class="reaction-bar">
+      <button class="react-btn" onclick="sendReaction('👏')">👏</button>
+      <button class="react-btn" onclick="sendReaction('🔥')">🔥</button>
+      <button class="react-btn" onclick="sendReaction('😂')">😂</button>
+      <button class="react-btn" onclick="sendReaction('🎉')">🎉</button>
+      <button class="react-btn" onclick="sendReaction('❤️')">❤️</button>
+    </div>
   </div>
 
   <!-- Finished -->
@@ -389,6 +458,7 @@
   let myVote = null;
   let lastQuestion = null;
   let isRegistered = false;
+  let hasCommented = false;
 
   const VIEWS = ['name-view','waiting-view','voting-view','voted-view','revealed-view','finished-view'];
   function showView(id) {
@@ -439,6 +509,7 @@
 
     if (state.currentQuestion !== lastQuestion) {
       myVote = null;
+      hasCommented = false;
       lastQuestion = state.currentQuestion;
     }
 
@@ -542,7 +613,33 @@
         <span class="voted-summary-pts">${pts} punt${pts !== 1 ? 'en' : ''}</span>
       </div>`).join('');
 
+    // Reset comment section for this question
+    hasCommented = false;
+    document.getElementById('comment-section').innerHTML = `
+      <textarea id="comment-input" class="comment-textarea"
+        placeholder="Optioneel: anonieme toelichting voor de host..."
+        maxlength="200" rows="3"></textarea>
+      <button class="btn btn-secondary" style="width:100%;margin-top:8px" onclick="submitComment()">
+        💬 Stuur toelichting
+      </button>`;
+
     showView('voted-view');
+  }
+
+  function submitComment() {
+    if (hasCommented) return;
+    const input = document.getElementById('comment-input');
+    const text = (input ? input.value : '').trim();
+    if (!text) return;
+    socket.emit('comment', { text });
+    hasCommented = true;
+    document.getElementById('comment-section').innerHTML =
+      '<div class="comment-sent">💬 Toelichting verzonden!</div>';
+  }
+
+  function sendReaction(emoji) {
+    socket.emit('react', { emoji });
+    // Brief tap feedback via CSS :active — nothing extra needed
   }
 </script>
 

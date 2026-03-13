@@ -312,6 +312,55 @@
     .initials-map {
       display: none;
     }
+
+    /* ── Comments ── */
+    .comments-card {
+      background: white;
+      border-radius: var(--ah-radius-lg);
+      box-shadow: var(--ah-shadow);
+      padding: 20px 24px;
+      margin-top: 16px;
+    }
+    .comments-heading {
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--ah-text-light);
+      margin-bottom: 12px;
+    }
+    .comment-bubble {
+      background: var(--ah-bg);
+      border-radius: var(--ah-radius);
+      padding: 10px 14px;
+      font-size: 14px;
+      color: var(--ah-text);
+      margin-bottom: 8px;
+      animation: fadeIn 0.3s ease;
+      line-height: 1.5;
+    }
+    .comment-bubble:last-child { margin-bottom: 0; }
+
+    /* ── Floating emoji reactions ── */
+    #reaction-overlay {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 999;
+      overflow: hidden;
+    }
+    .floating-emoji {
+      position: absolute;
+      bottom: -70px;
+      font-size: 52px;
+      animation: floatUp 2.8s ease-out forwards;
+      user-select: none;
+    }
+    @keyframes floatUp {
+      0%   { transform: translateY(0) scale(1); opacity: 1; }
+      80%  { opacity: 0.9; }
+      100% { transform: translateY(-110vh) scale(0.5); opacity: 0; }
+    }
   </style>
 </head>
 <body>
@@ -323,6 +372,7 @@
   <a href="/" style="color:white; font-size:13px; font-weight:600; text-decoration:none; opacity:0.75; margin-left:16px;">← Terug</a>
 </header>
 
+<div id="reaction-overlay"></div>
 <div class="host-layout">
 
   <!-- ── Waiting ── -->
@@ -382,6 +432,13 @@
 
       <div class="card">
         <div id="results-container"></div>
+      </div>
+
+      <div id="comments-section" class="hidden">
+        <div class="comments-card">
+          <div class="comments-heading">💬 Toelichtingen</div>
+          <div id="comments-list"></div>
+        </div>
       </div>
 
       <div class="controls">
@@ -473,7 +530,21 @@
       nextBtn.textContent = state.currentQuestion >= state.totalQuestions - 1
         ? '🏆 Bekijk teamkwaliteiten' : 'Volgende vraag ➡️';
       renderResults(state);
+      renderComments(state);
     }
+  }
+
+  function renderComments(state) {
+    const section = document.getElementById('comments-section');
+    const list = document.getElementById('comments-list');
+    if (!state.comments || state.comments.length === 0) {
+      section.classList.add('hidden');
+      return;
+    }
+    section.classList.remove('hidden');
+    list.innerHTML = state.comments.map(c =>
+      `<div class="comment-bubble">${c}</div>`
+    ).join('');
   }
 
   function renderResults(state) {
@@ -564,6 +635,17 @@
   function hostReveal()  { socket.emit('host-reveal'); }
   function hostNext()    { socket.emit('host-next'); }
   function hostRestart() { socket.emit('host-restart'); }
+
+  socket.on('reaction', ({ emoji }) => {
+    const overlay = document.getElementById('reaction-overlay');
+    const el = document.createElement('div');
+    el.className = 'floating-emoji';
+    el.textContent = emoji;
+    el.style.left = (10 + Math.random() * 80) + '%';
+    el.style.animationDuration = (2.2 + Math.random() * 1.2) + 's';
+    overlay.appendChild(el);
+    el.addEventListener('animationend', () => el.remove());
+  });
 </script>
 
 </body>
