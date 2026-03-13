@@ -676,12 +676,6 @@
       return;
     }
 
-    if (state.phase === 'retro-review') {
-      showView('waiting-view');
-      document.getElementById('waiting-name-chip').textContent = '👀 Kijk mee op het grote scherm';
-      return;
-    }
-
     if (state.phase === 'mood') {
       if (hasMoodVoted) {
         showView('waiting-view');

@@ -189,14 +189,8 @@ io.on('connection', (socket) => {
     io.emit('state', getPublicState());
   });
 
-  socket.on('host-start-review', () => {
-    if (gameState.phase !== 'retro') return;
-    gameState.phase = 'retro-review';
-    io.emit('state', getPublicState());
-  });
-
   socket.on('host-start-quiz', () => {
-    if (gameState.phase !== 'retro-review') return;
+    if (gameState.phase !== 'retro') return;
     gameState.phase = 'voting';
     io.emit('state', getPublicState());
   });
