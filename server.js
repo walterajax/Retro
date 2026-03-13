@@ -87,6 +87,8 @@ function getPublicState() {
     totalVotes: Object.values(gameState.votes).reduce((a, b) => a + b, 0),
     totalQuestions: QUESTIONS.length,
     teamMembers: getMemberList(),
+    votedCount: gameState.votedIds.size,
+    totalVoters: getMemberList().length,
     allResults,
     comments: gameState.comments,
   };

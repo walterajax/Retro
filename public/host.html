@@ -414,7 +414,7 @@
     <div id="voting-phase">
       <div class="voting-status">
         <div class="live-dot"></div>
-        Live – wachten op stemmen
+        <span id="voting-status-text">Wachten op stemmen</span>
       </div>
       <div class="controls">
         <button class="btn btn-orange btn-large" onclick="hostReveal()">🎯 Ontdek de winnaar</button>
@@ -524,6 +524,8 @@
     if (state.phase === 'voting') {
       voting.classList.remove('hidden');
       revealed.classList.add('hidden');
+      document.getElementById('voting-status-text').textContent =
+        `${state.votedCount} van ${state.totalVoters} gestemd`;
     } else if (state.phase === 'revealed') {
       voting.classList.add('hidden');
       revealed.classList.remove('hidden');
