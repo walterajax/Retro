@@ -325,7 +325,7 @@
 
 <script src="/socket.io/socket.io.js"></script>
 <script>
-  const socket = io();
+  const socket = io({ transports: ['websocket', 'polling'] });
 
   // Generate/retrieve voter ID
   let voterId = localStorage.getItem('retro-voter-id');
