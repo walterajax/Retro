@@ -111,62 +111,113 @@
     .q-counter { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: var(--ah-blue); margin-bottom: 8px; }
     .q-text    { font-size: 16px; font-weight: 700; line-height: 1.4; color: var(--ah-text); }
 
-    /* ── Vote grid ── */
-    .vote-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-    }
-
-    .vote-btn {
-      background: white;
-      border: 2px solid var(--ah-border);
-      border-radius: var(--ah-radius);
-      padding: 18px 10px;
-      font-family: var(--font);
-      font-size: 15px;
-      font-weight: 700;
-      color: var(--ah-text);
-      cursor: pointer;
+    /* ── Points distribution ── */
+    .points-header {
       display: flex;
-      flex-direction: column;
       align-items: center;
-      gap: 8px;
-      box-shadow: var(--ah-shadow);
-      transition: all 0.12s ease;
-      -webkit-tap-highlight-color: transparent;
+      justify-content: space-between;
+      margin-bottom: 10px;
     }
-    .vote-btn:active { transform: scale(0.95); }
-    .vote-btn:hover  { border-color: var(--ah-blue); background: var(--ah-blue-light); color: var(--ah-blue); }
+    .points-label {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--ah-text-light);
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+    }
+    .points-remaining {
+      font-size: 14px;
+      font-weight: 800;
+      color: var(--ah-blue);
+      background: var(--ah-blue-light);
+      padding: 4px 12px;
+      border-radius: 100px;
+      transition: all 0.2s;
+    }
+    .points-remaining.done {
+      background: #E6F7EF;
+      color: var(--ah-success);
+    }
 
-    .vote-btn.selected {
-      background: var(--ah-blue);
-      border-color: var(--ah-blue);
-      color: white;
-      transform: scale(0.97);
-      box-shadow: 0 4px 14px rgba(0,99,211,0.35);
+    .points-list {
+      background: white;
+      border-radius: var(--ah-radius-lg);
+      box-shadow: var(--ah-shadow);
+      overflow: hidden;
+      margin-bottom: 14px;
     }
-    .vote-btn.not-selected { opacity: 0.4; }
-    .vote-btn:disabled { cursor: not-allowed; }
+
+    .points-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 13px 16px;
+      border-bottom: 1px solid var(--ah-border);
+    }
+    .points-row:last-child { border-bottom: none; }
 
     .member-avatar {
-      width: 40px;
-      height: 40px;
+      width: 36px;
+      height: 36px;
       background: var(--ah-blue-light);
       color: var(--ah-blue);
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 16px;
+      font-size: 13px;
       font-weight: 900;
-      letter-spacing: -0.5px;
+      flex-shrink: 0;
+    }
+
+    .member-name {
+      flex: 1;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--ah-text);
+    }
+
+    .points-controls {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .pt-btn {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: 2px solid var(--ah-border);
+      background: white;
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--ah-text-light);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
       transition: all 0.12s;
+      -webkit-tap-highlight-color: transparent;
+      padding: 0;
+      font-family: var(--font);
     }
-    .vote-btn.selected .member-avatar {
-      background: rgba(255,255,255,0.2);
-      color: white;
+    .pt-btn:active { transform: scale(0.9); }
+    .pt-btn.active {
+      border-color: var(--ah-blue);
+      color: var(--ah-blue);
     }
+    .pt-btn:disabled { opacity: 0.25; cursor: not-allowed; transform: none; }
+
+    .pt-count {
+      font-size: 18px;
+      font-weight: 900;
+      color: var(--ah-text);
+      min-width: 24px;
+      text-align: center;
+      transition: color 0.15s;
+    }
+    .pt-count.has-points { color: var(--ah-blue); }
 
     /* ── Voted ── */
     #voted-view {
@@ -178,17 +229,32 @@
       text-align: center;
     }
     .voted-icon  { font-size: 64px; margin-bottom: 18px; animation: scaleIn 0.4s cubic-bezier(0.34,1.56,0.64,1); }
-    .voted-title { font-size: 24px; font-weight: 900; color: var(--ah-blue); margin-bottom: 8px; }
-    .voted-for   { font-size: 16px; color: var(--ah-text-light); margin-bottom: 10px; }
-    .voted-chip  {
-      display: inline-block;
-      background: var(--ah-blue);
-      color: white;
-      padding: 7px 22px;
-      border-radius: 100px;
-      font-size: 18px;
+    .voted-title { font-size: 24px; font-weight: 900; color: var(--ah-blue); margin-bottom: 6px; }
+    .voted-sub   { font-size: 14px; color: var(--ah-text-light); margin-bottom: 18px; }
+    .voted-summary {
+      background: var(--ah-bg);
+      border-radius: var(--ah-radius);
+      padding: 14px 16px;
+      width: 100%;
+      margin-bottom: 20px;
+      text-align: left;
+    }
+    .voted-summary-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 5px 0;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--ah-text);
+    }
+    .voted-summary-pts {
       font-weight: 800;
-      margin-bottom: 24px;
+      color: var(--ah-blue);
+      background: var(--ah-blue-light);
+      padding: 2px 10px;
+      border-radius: 100px;
+      font-size: 13px;
     }
     .voted-wait {
       display: flex;
@@ -265,19 +331,28 @@
 
     <div class="question-card-mobile">
       <span class="q-emoji" id="m-emoji">💡</span>
-      <div class="q-counter" id="m-counter">Vraag 1 van 20</div>
+      <div class="q-counter" id="m-counter">Vraag 1 van 26</div>
       <div class="q-text" id="m-question">Laden...</div>
     </div>
 
-    <div class="vote-grid" id="vote-grid"></div>
+    <div class="points-header">
+      <div class="points-label">Verdeel je 10 punten</div>
+      <div class="points-remaining" id="points-remaining">10 over</div>
+    </div>
+
+    <div class="points-list" id="points-list"></div>
+
+    <button class="btn btn-primary" id="submit-btn" style="width:100%;margin-top:12px" onclick="submitVotes()" disabled>
+      Verstuur mijn stem
+    </button>
   </div>
 
   <!-- Voted -->
   <div id="voted-view" class="hidden">
     <div class="voted-icon">✅</div>
-    <div class="voted-title">Stem uitgebracht!</div>
-    <div class="voted-for">Jij stemde op:</div>
-    <div class="voted-chip" id="voted-for-name"></div>
+    <div class="voted-title">Punten verdeeld!</div>
+    <div class="voted-sub">Zo heb jij gestemd:</div>
+    <div class="voted-summary" id="voted-summary"></div>
     <div class="voted-wait">
       <div class="live-dot"></div>
       Wachten op de uitslag...
@@ -378,12 +453,10 @@
 
     if (state.phase === 'voting') {
       if (myVote) {
-        document.getElementById('voted-for-name').textContent = myVote;
         showView('voted-view');
       } else {
-        // Filter eigen naam eruit
         const others = state.teamMembers.filter(n => n !== myName);
-        renderVoteGrid(others);
+        renderPointsList(others);
         showView('voting-view');
       }
     } else if (state.phase === 'revealed') {
@@ -391,28 +464,85 @@
     }
   });
 
-  function renderVoteGrid(members) {
-    document.getElementById('vote-grid').innerHTML = members.map(name => `
-      <button class="vote-btn" onclick="castVote('${name.replace(/'/g, "\\'")}')" id="btn-${name}">
+  const TOTAL_POINTS = 10;
+  let distribution = {};
+  let remaining = TOTAL_POINTS;
+
+  function renderPointsList(members) {
+    distribution = {};
+    remaining = TOTAL_POINTS;
+    updateRemainingUI();
+
+    document.getElementById('points-list').innerHTML = members.map(name => `
+      <div class="points-row" id="row-${CSS.escape(name)}">
         <div class="member-avatar">${getInitials(name)}</div>
-        ${name}
-      </button>`).join('');
+        <div class="member-name">${name}</div>
+        <div class="points-controls">
+          <button class="pt-btn" id="minus-${CSS.escape(name)}" onclick="changePoints('${name.replace(/'/g,"\\'")}', -1)" disabled>−</button>
+          <div class="pt-count" id="count-${CSS.escape(name)}">0</div>
+          <button class="pt-btn active" id="plus-${CSS.escape(name)}" onclick="changePoints('${name.replace(/'/g,"\\'")}', 1)">+</button>
+        </div>
+      </div>`).join('');
   }
 
-  function castVote(name) {
-    if (myVote) return;
-    socket.emit('vote', { voterId, memberName: name });
-    myVote = name;
+  function changePoints(name, delta) {
+    const current = distribution[name] || 0;
+    const newVal = current + delta;
+    if (newVal < 0) return;
+    if (delta > 0 && remaining <= 0) return;
 
-    document.querySelectorAll('.vote-btn').forEach(btn => {
-      btn.disabled = true;
-      btn.classList.add(btn.id === `btn-${name}` ? 'selected' : 'not-selected');
+    distribution[name] = newVal;
+    remaining -= delta;
+    updateRemainingUI();
+    updateRowUI(name);
+  }
+
+  function updateRowUI(name) {
+    const val = distribution[name] || 0;
+    const countEl = document.getElementById(`count-${CSS.escape(name)}`);
+    const minusEl = document.getElementById(`minus-${CSS.escape(name)}`);
+    const plusEl  = document.getElementById(`plus-${CSS.escape(name)}`);
+    if (countEl) {
+      countEl.textContent = val;
+      countEl.className = 'pt-count' + (val > 0 ? ' has-points' : '');
+    }
+    if (minusEl) minusEl.disabled = val <= 0;
+    if (plusEl)  plusEl.disabled  = remaining <= 0;
+  }
+
+  function updateRemainingUI() {
+    const el = document.getElementById('points-remaining');
+    const btn = document.getElementById('submit-btn');
+    if (el) {
+      el.textContent = remaining > 0 ? `${remaining} over` : 'Klaar!';
+      el.className = 'points-remaining' + (remaining === 0 ? ' done' : '');
+    }
+    if (btn) btn.disabled = remaining !== 0;
+
+    // Update all plus buttons based on remaining
+    document.querySelectorAll('[id^="plus-"]').forEach(b => {
+      const name = b.id.replace('plus-', '');
+      b.disabled = remaining <= 0;
     });
+  }
 
-    setTimeout(() => {
-      document.getElementById('voted-for-name').textContent = name;
-      showView('voted-view');
-    }, 380);
+  function submitVotes() {
+    if (remaining !== 0) return;
+    const nonZero = Object.fromEntries(
+      Object.entries(distribution).filter(([, v]) => v > 0)
+    );
+    socket.emit('vote', { voterId, distribution: nonZero });
+    myVote = true;
+
+    // Build summary
+    const sorted = Object.entries(nonZero).sort((a, b) => b[1] - a[1]);
+    document.getElementById('voted-summary').innerHTML = sorted.map(([name, pts]) => `
+      <div class="voted-summary-row">
+        <span>${name}</span>
+        <span class="voted-summary-pts">${pts} punt${pts !== 1 ? 'en' : ''}</span>
+      </div>`).join('');
+
+    showView('voted-view');
   }
 </script>
 

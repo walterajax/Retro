@@ -100,14 +100,28 @@ io.on('connection', (socket) => {
     io.emit('state', getPublicState());
   });
 
-  socket.on('vote', ({ voterId, memberName }) => {
+  socket.on('vote', ({ voterId, distribution }) => {
     if (gameState.phase !== 'voting') return;
     if (gameState.votedIds.has(voterId)) return;
-    if (!getMemberList().includes(memberName)) return;
-    if (registeredVoters[voterId] === memberName) return; // geen stemmen op jezelf
+
+    const myName = registeredVoters[voterId];
+    const members = getMemberList();
+    let total = 0;
+
+    for (const [name, points] of Object.entries(distribution)) {
+      if (name === myName) return;           // geen punten op jezelf
+      if (!members.includes(name)) return;   // onbekend lid
+      if (typeof points !== 'number' || points < 0 || !Number.isInteger(points)) return;
+      total += points;
+    }
+    if (total === 0) return;
 
     gameState.votedIds.add(voterId);
-    gameState.votes[memberName] = (gameState.votes[memberName] || 0) + 1;
+    for (const [name, points] of Object.entries(distribution)) {
+      if (points > 0) {
+        gameState.votes[name] = (gameState.votes[name] || 0) + points;
+      }
+    }
     io.emit('state', getPublicState());
   });
 
