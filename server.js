@@ -64,6 +64,7 @@ let gameState = {
   votes: {},
   votedIds: new Set(),
   comments: [],
+  moodVotes: {},
 };
 
 function saveCurrentQuestionResult() {
@@ -91,6 +92,12 @@ function getPublicState() {
     totalVoters: getMemberList().length,
     allResults,
     comments: gameState.comments,
+    moodCount: Object.keys(gameState.moodVotes).length,
+    moodAvg: (() => {
+      const vals = Object.values(gameState.moodVotes);
+      return vals.length > 0 ? Math.round(vals.reduce((a,b) => a+b, 0) / vals.length * 10) / 10 : null;
+    })(),
+    moodDist: [1,2,3,4,5].map(r => Object.values(gameState.moodVotes).filter(v => v === r).length),
   };
 }
 
@@ -149,10 +156,24 @@ io.on('connection', (socket) => {
   socket.on('host-start', () => {
     allResults = [];
     gameState.currentQuestion = 0;
-    gameState.phase = 'voting';
+    gameState.phase = 'mood';
+    gameState.moodVotes = {};
     gameState.votes = {};
     gameState.votedIds = new Set();
     gameState.comments = [];
+    io.emit('state', getPublicState());
+  });
+
+  socket.on('mood-vote', ({ voterId, rating }) => {
+    if (gameState.phase !== 'mood') return;
+    if (typeof rating !== 'number' || rating < 1 || rating > 5 || !Number.isInteger(rating)) return;
+    gameState.moodVotes[voterId] = rating;
+    io.emit('state', getPublicState());
+  });
+
+  socket.on('host-start-quiz', () => {
+    if (gameState.phase !== 'mood') return;
+    gameState.phase = 'voting';
     io.emit('state', getPublicState());
   });
 
@@ -185,6 +206,7 @@ io.on('connection', (socket) => {
     gameState.votes = {};
     gameState.votedIds = new Set();
     gameState.comments = [];
+    gameState.moodVotes = {};
     io.emit('state', getPublicState());
   });
 });

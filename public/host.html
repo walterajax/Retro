@@ -341,6 +341,77 @@
     }
     .comment-bubble:last-child { margin-bottom: 0; }
 
+    /* ── Mood screen ── */
+    #mood-screen {
+      text-align: center;
+    }
+    .mood-avg-wrap {
+      padding: 32px 20px 24px;
+    }
+    .mood-avg-emoji {
+      font-size: 72px;
+      margin-bottom: 12px;
+    }
+    .mood-avg-score {
+      font-size: 48px;
+      font-weight: 900;
+      color: var(--ah-text);
+      letter-spacing: -1px;
+      margin-bottom: 4px;
+    }
+    .mood-avg-label {
+      font-size: 14px;
+      color: var(--ah-text-light);
+      font-weight: 600;
+    }
+    .mood-dist {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      align-items: flex-end;
+      height: 80px;
+      margin: 20px 0 8px;
+      padding: 0 20px;
+    }
+    .mood-dist-col {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      flex: 1;
+      max-width: 60px;
+    }
+    .mood-dist-bar-wrap {
+      width: 100%;
+      height: 60px;
+      display: flex;
+      align-items: flex-end;
+    }
+    .mood-dist-bar {
+      width: 100%;
+      background: var(--ah-blue-light);
+      border-radius: 6px 6px 0 0;
+      min-height: 4px;
+      transition: height 0.5s ease;
+    }
+    .mood-dist-bar.has-votes {
+      background: var(--ah-blue);
+    }
+    .mood-dist-emoji {
+      font-size: 22px;
+    }
+    .mood-dist-count {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--ah-text-light);
+    }
+    .mood-status {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--ah-text-light);
+      margin: 8px 0 20px;
+    }
+
     /* ── Countdown overlay ── */
     #countdown-overlay {
       position: fixed;
@@ -427,7 +498,21 @@
       </div>
     </div>
 
-    <button class="btn btn-primary btn-large" onclick="hostStart()">🚀 Start de quiz</button>
+    <button class="btn btn-primary btn-large" onclick="hostStart()">🌡️ Start stemmingscheck</button>
+  </div>
+
+  <!-- ── Mood check ── -->
+  <div id="mood-screen" class="card hidden fade-in">
+    <div class="mood-avg-wrap">
+      <div class="mood-avg-emoji" id="mood-avg-emoji">😐</div>
+      <div class="mood-avg-score" id="mood-avg-score">–</div>
+      <div class="mood-avg-label">gemiddelde spritstemming</div>
+    </div>
+    <div class="mood-dist" id="mood-dist"></div>
+    <div class="mood-status" id="mood-status">Wachten op stemmen...</div>
+    <div class="controls">
+      <button class="btn btn-primary btn-large" onclick="hostStartQuiz()">🚀 Start de quiz</button>
+    </div>
   </div>
 
   <!-- ── Quiz ── -->
@@ -558,7 +643,7 @@
   });
 
   function renderState(state) {
-    ['waiting-screen','quiz-screen','finished-screen'].forEach(id =>
+    ['waiting-screen','mood-screen','quiz-screen','finished-screen'].forEach(id =>
       document.getElementById(id).classList.add('hidden')
     );
 
@@ -580,6 +665,9 @@
             ${name}
           </span>`).join('');
       }
+    } else if (state.phase === 'mood') {
+      document.getElementById('mood-screen').classList.remove('hidden');
+      renderMoodScreen(state);
     } else if (state.phase === 'finished') {
       document.getElementById('finished-screen').classList.remove('hidden');
       renderQualities(state.allResults, state.teamMembers);
@@ -619,6 +707,38 @@
       renderResults(state);
       renderComments(state);
     }
+  }
+
+  function renderMoodScreen(state) {
+    const MOOD_EMOJIS = ['', '😩', '😕', '😐', '🙂', '🤩'];
+    const avgEl = document.getElementById('mood-avg-score');
+    const emojiEl = document.getElementById('mood-avg-emoji');
+    const statusEl = document.getElementById('mood-status');
+    const distEl = document.getElementById('mood-dist');
+
+    if (state.moodAvg === null) {
+      avgEl.textContent = '–';
+      emojiEl.textContent = '😐';
+    } else {
+      avgEl.textContent = state.moodAvg.toFixed(1);
+      emojiEl.textContent = MOOD_EMOJIS[Math.round(state.moodAvg)];
+    }
+
+    statusEl.textContent = `${state.moodCount} van ${state.totalVoters} gestemd`;
+
+    const maxDist = Math.max(...state.moodDist, 1);
+    distEl.innerHTML = [1,2,3,4,5].map((r, i) => {
+      const count = state.moodDist[i];
+      const pct = Math.round((count / maxDist) * 100);
+      return `
+        <div class="mood-dist-col">
+          <div class="mood-dist-bar-wrap">
+            <div class="mood-dist-bar ${count > 0 ? 'has-votes' : ''}" style="height:${pct}%"></div>
+          </div>
+          <div class="mood-dist-emoji">${MOOD_EMOJIS[r]}</div>
+          <div class="mood-dist-count">${count}</div>
+        </div>`;
+    }).join('');
   }
 
   function renderComments(state) {
@@ -718,10 +838,11 @@
       </div>` : '');
   }
 
-  function hostStart()   { socket.emit('host-start'); }
-  function hostReveal()  { socket.emit('host-reveal'); }
-  function hostNext()    { socket.emit('host-next'); }
-  function hostRestart() { socket.emit('host-restart'); }
+  function hostStart()      { socket.emit('host-start'); }
+  function hostStartQuiz()  { socket.emit('host-start-quiz'); }
+  function hostReveal()     { socket.emit('host-reveal'); }
+  function hostNext()       { socket.emit('host-next'); }
+  function hostRestart()    { socket.emit('host-restart'); }
 
   socket.on('reaction', ({ emoji }) => {
     const overlay = document.getElementById('reaction-overlay');

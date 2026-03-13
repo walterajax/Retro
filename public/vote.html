@@ -344,6 +344,62 @@
     .finished-icon  { font-size: 60px; margin-bottom: 16px; }
     .finished-title { font-size: 22px; font-weight: 900; color: var(--ah-blue); margin-bottom: 8px; }
     .finished-sub   { font-size: 15px; color: var(--ah-text-light); line-height: 1.5; }
+
+    /* ── Mood check ── */
+    .mood-title {
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--ah-text);
+      margin-bottom: 8px;
+      text-align: center;
+    }
+    .mood-sub {
+      font-size: 14px;
+      color: var(--ah-text-light);
+      text-align: center;
+      margin-bottom: 28px;
+      line-height: 1.5;
+    }
+    .mood-options {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+      margin-bottom: 12px;
+    }
+    .mood-btn {
+      font-size: 36px;
+      background: white;
+      border: 2px solid var(--ah-border);
+      border-radius: 16px;
+      width: 56px;
+      height: 64px;
+      cursor: pointer;
+      transition: transform 0.1s, border-color 0.15s, box-shadow 0.1s;
+      -webkit-tap-highlight-color: transparent;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      box-shadow: var(--ah-shadow);
+      gap: 2px;
+    }
+    .mood-btn:active {
+      transform: scale(0.88);
+      border-color: var(--ah-blue);
+      box-shadow: none;
+    }
+    .mood-btn-label {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--ah-text-light);
+      font-family: var(--font);
+    }
+    .mood-voted {
+      text-align: center;
+      font-size: 14px;
+      color: var(--ah-text-light);
+      margin-top: 16px;
+    }
   </style>
 </head>
 <body>
@@ -375,6 +431,35 @@
     <div class="waiting-title">Je bent aangemeld!</div>
     <div class="waiting-sub">De host start de quiz zo.<br>Dan kun jij stemmen!</div>
     <div class="waiting-name-chip" id="waiting-name-chip"></div>
+  </div>
+
+  <!-- Mood check -->
+  <div id="mood-view" class="hidden" style="display:flex; flex-direction:column; align-items:center; justify-content:center; flex:1; padding: 0 8px;">
+    <div style="font-size:48px; margin-bottom:16px">🌡️</div>
+    <div class="mood-title">Hoe voelde jij de afgelopen sprint?</div>
+    <div class="mood-sub">Tap op een emoji om je stemming te delen.</div>
+    <div class="mood-options">
+      <button class="mood-btn" onclick="submitMood(1)">
+        <span>😩</span>
+        <span class="mood-btn-label">Zwaar</span>
+      </button>
+      <button class="mood-btn" onclick="submitMood(2)">
+        <span>😕</span>
+        <span class="mood-btn-label">Moeizaam</span>
+      </button>
+      <button class="mood-btn" onclick="submitMood(3)">
+        <span>😐</span>
+        <span class="mood-btn-label">Oké</span>
+      </button>
+      <button class="mood-btn" onclick="submitMood(4)">
+        <span>🙂</span>
+        <span class="mood-btn-label">Goed</span>
+      </button>
+      <button class="mood-btn" onclick="submitMood(5)">
+        <span>🤩</span>
+        <span class="mood-btn-label">Super!</span>
+      </button>
+    </div>
   </div>
 
   <!-- Voting -->
@@ -459,8 +544,9 @@
   let lastQuestion = null;
   let isRegistered = false;
   let hasCommented = false;
+  let hasMoodVoted = false;
 
-  const VIEWS = ['name-view','waiting-view','voting-view','voted-view','revealed-view','finished-view'];
+  const VIEWS = ['name-view','waiting-view','mood-view','voting-view','voted-view','revealed-view','finished-view'];
   function showView(id) {
     VIEWS.forEach(v => document.getElementById(v).classList.add('hidden'));
     document.getElementById(id).classList.remove('hidden');
@@ -501,9 +587,19 @@
     }
 
     if (state.phase === 'waiting') {
-      myVote = null; lastQuestion = null;
+      myVote = null; lastQuestion = null; hasMoodVoted = false;
       document.getElementById('waiting-name-chip').textContent = `👋 Ingelogd als ${myName}`;
       showView('waiting-view');
+      return;
+    }
+
+    if (state.phase === 'mood') {
+      if (hasMoodVoted) {
+        showView('waiting-view');
+        document.getElementById('waiting-name-chip').textContent = `✅ Stemming verstuurd`;
+      } else {
+        showView('mood-view');
+      }
       return;
     }
 
@@ -628,6 +724,14 @@
       </button>`;
 
     showView('voted-view');
+  }
+
+  function submitMood(rating) {
+    if (hasMoodVoted) return;
+    hasMoodVoted = true;
+    socket.emit('mood-vote', { voterId, rating });
+    showView('waiting-view');
+    document.getElementById('waiting-name-chip').textContent = `✅ Stemming verstuurd`;
   }
 
   function submitComment() {
