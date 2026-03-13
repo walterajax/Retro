@@ -66,6 +66,8 @@ let gameState = {
   comments: [],
   moodVotes: {},
   retroInputs: [],
+  retroVoteTally: {},
+  retroVotedIds: new Set(),
 };
 
 function saveCurrentQuestionResult() {
@@ -100,6 +102,8 @@ function getPublicState() {
     })(),
     moodDist: [1,2,3,4,5].map(r => Object.values(gameState.moodVotes).filter(v => v === r).length),
     retroInputs: gameState.retroInputs,
+    retroVoteTally: gameState.retroVoteTally,
+    retroVoteCount: gameState.retroVotedIds.size,
   };
 }
 
@@ -164,6 +168,8 @@ io.on('connection', (socket) => {
     gameState.votedIds = new Set();
     gameState.comments = [];
     gameState.retroInputs = [];
+    gameState.retroVoteTally = {};
+    gameState.retroVotedIds = new Set();
     io.emit('state', getPublicState());
   });
 
@@ -189,8 +195,30 @@ io.on('connection', (socket) => {
     io.emit('state', getPublicState());
   });
 
-  socket.on('host-start-quiz', () => {
+  socket.on('host-start-retro-vote', () => {
     if (gameState.phase !== 'retro') return;
+    gameState.phase = 'retro-vote';
+    gameState.retroVoteTally = {};
+    gameState.retroVotedIds = new Set();
+    io.emit('state', getPublicState());
+  });
+
+  socket.on('retro-vote-submit', ({ voterId, selected }) => {
+    if (gameState.phase !== 'retro-vote') return;
+    if (gameState.retroVotedIds.has(voterId)) return;
+    if (!Array.isArray(selected)) return;
+    const max = gameState.retroInputs.length;
+    const valid = [...new Set(selected.filter(i => Number.isInteger(i) && i >= 0 && i < max))].slice(0, 3);
+    if (valid.length === 0) return;
+    gameState.retroVotedIds.add(voterId);
+    valid.forEach(i => {
+      gameState.retroVoteTally[i] = (gameState.retroVoteTally[i] || 0) + 1;
+    });
+    io.emit('state', getPublicState());
+  });
+
+  socket.on('host-start-quiz', () => {
+    if (gameState.phase !== 'retro-vote') return;
     gameState.phase = 'voting';
     io.emit('state', getPublicState());
   });
@@ -226,6 +254,8 @@ io.on('connection', (socket) => {
     gameState.comments = [];
     gameState.moodVotes = {};
     gameState.retroInputs = [];
+    gameState.retroVoteTally = {};
+    gameState.retroVotedIds = new Set();
     io.emit('state', getPublicState());
   });
 });

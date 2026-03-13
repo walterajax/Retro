@@ -476,6 +476,47 @@
       animation: fadeIn 0.3s ease;
     }
 
+    /* ── Retro vote screen ── */
+    .retro-vote-result-row {
+      background: white;
+      border-radius: var(--ah-radius);
+      padding: 12px 16px;
+      margin-bottom: 8px;
+      box-shadow: var(--ah-shadow);
+      border: 1.5px solid transparent;
+      transition: border-color 0.3s;
+    }
+    .retro-vote-result-row.top3 {
+      border-color: var(--ah-orange);
+      background: #FFFAF7;
+    }
+    .retro-vote-result-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .retro-vote-result-text {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--ah-text);
+      line-height: 1.4;
+      flex: 1;
+    }
+    .retro-vote-result-count {
+      font-size: 13px;
+      font-weight: 800;
+      color: var(--ah-blue);
+      background: var(--ah-blue-light);
+      padding: 2px 10px;
+      border-radius: 100px;
+      flex-shrink: 0;
+    }
+    .retro-vote-result-row.top3 .retro-vote-result-count {
+      background: var(--ah-orange-light);
+      color: var(--ah-orange);
+    }
+
     /* ── Countdown overlay ── */
     #countdown-overlay {
       position: fixed;
@@ -597,6 +638,19 @@
       </div>
     </div>
     <div class="controls">
+      <button class="btn btn-primary btn-large" onclick="hostStartRetroVote()">🗳️ Start stemronde</button>
+    </div>
+  </div>
+
+  <!-- ── Retro vote ── -->
+  <div id="retro-vote-screen" class="hidden">
+    <div class="retro-header">
+      <div class="retro-title">🗳️ Stemronde</div>
+      <div class="retro-sub">Iedereen kiest maximaal 3 onderwerpen. De top 3 bespreken jullie samen.</div>
+      <div class="retro-count" id="retro-vote-status">Wachten op stemmen...</div>
+    </div>
+    <div id="retro-vote-results"></div>
+    <div class="controls" style="margin-top:24px">
       <button class="btn btn-primary btn-large" onclick="hostStartQuiz()">🚀 Start de quiz</button>
     </div>
   </div>
@@ -729,15 +783,16 @@
   });
 
   function renderState(state) {
-    ['waiting-screen','mood-screen','retro-screen','quiz-screen','finished-screen'].forEach(id =>
+    ['waiting-screen','mood-screen','retro-screen','retro-vote-screen','quiz-screen','finished-screen'].forEach(id =>
       document.getElementById(id).classList.add('hidden')
     );
 
     document.getElementById('header-sub').textContent =
       state.phase === 'waiting'  ? 'Host' :
       state.phase === 'mood'     ? 'Stemmingscheck' :
-      state.phase === 'retro'    ? 'Sprint-reflectie' :
-      state.phase === 'finished' ? 'Klaar!' :
+      state.phase === 'retro'      ? 'Sprint-reflectie' :
+      state.phase === 'retro-vote' ? 'Stemronde' :
+      state.phase === 'finished'   ? 'Klaar!' :
       `Vraag ${state.currentQuestion + 1} / ${state.totalQuestions}`;
 
     if (state.phase === 'waiting') {
@@ -759,6 +814,9 @@
     } else if (state.phase === 'retro') {
       document.getElementById('retro-screen').classList.remove('hidden');
       renderRetroScreen(state);
+    } else if (state.phase === 'retro-vote') {
+      document.getElementById('retro-vote-screen').classList.remove('hidden');
+      renderRetroVoteScreen(state);
     } else if (state.phase === 'finished') {
       document.getElementById('finished-screen').classList.remove('hidden');
       renderQualities(state.allResults, state.teamMembers);
@@ -848,6 +906,36 @@
     document.getElementById('retro-better-items').innerHTML =
       better.map(i => `<div class="retro-item">${i.text}</div>`).join('') ||
       '<div style="color:var(--ah-text-light);font-size:13px;padding:4px 0">Wachten...</div>';
+  }
+
+  function renderRetroVoteScreen(state) {
+    const inputs = state.retroInputs || [];
+    const tally = state.retroVoteTally || {};
+
+    document.getElementById('retro-vote-status').textContent =
+      `${state.retroVoteCount} van ${state.totalVoters} gestemd`;
+
+    const items = inputs.map((item, i) => ({
+      ...item, index: i, votes: tally[i] || 0
+    })).sort((a, b) => b.votes - a.votes);
+
+    const maxVotes = Math.max(...items.map(i => i.votes), 1);
+
+    document.getElementById('retro-vote-results').innerHTML = items.map((item, rank) => {
+      const isTop3 = rank < 3 && item.votes > 0;
+      const pct = (item.votes / maxVotes) * 100;
+      const typeEmoji = item.type === 'good' ? '✅' : '💡';
+      return `
+        <div class="retro-vote-result-row ${isTop3 ? 'top3' : ''}" style="animation:fadeIn 0.3s ease">
+          <div class="retro-vote-result-header">
+            <div class="retro-vote-result-text">${isTop3 ? '⭐ ' : ''}${typeEmoji} ${item.text}</div>
+            <div class="retro-vote-result-count">${item.votes}</div>
+          </div>
+          ${item.votes > 0 ? `<div class="result-bar-bg" style="margin-top:6px">
+            <div class="result-bar-fill ${isTop3 ? 'winner' : ''}" style="width:${pct}%;animation:barGrow 0.6s ease both"></div>
+          </div>` : ''}
+        </div>`;
+    }).join('');
   }
 
   function renderComments(state) {
@@ -947,9 +1035,10 @@
       </div>` : '');
   }
 
-  function hostStart()       { socket.emit('host-start'); }
-  function hostStartRetro()  { socket.emit('host-start-retro'); }
-  function hostStartQuiz()   { socket.emit('host-start-quiz'); }
+  function hostStart()           { socket.emit('host-start'); }
+  function hostStartRetro()      { socket.emit('host-start-retro'); }
+  function hostStartRetroVote()  { socket.emit('host-start-retro-vote'); }
+  function hostStartQuiz()       { socket.emit('host-start-quiz'); }
   function hostReveal()     { socket.emit('host-reveal'); }
   function hostNext()       { socket.emit('host-next'); }
   function hostRestart()    { socket.emit('host-restart'); }

@@ -394,6 +394,47 @@
       font-weight: 600;
     }
 
+    /* ── Retro vote view ── */
+    .rvote-remaining {
+      text-align: center;
+      font-size: 14px;
+      font-weight: 800;
+      color: var(--ah-blue);
+      background: var(--ah-blue-light);
+      padding: 5px 16px;
+      border-radius: 100px;
+      display: inline-block;
+      margin: 0 auto 16px;
+      align-self: center;
+    }
+    .rvote-remaining.done { background: #E6F7EF; color: var(--ah-success); }
+    .rvote-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 8px; }
+    .rvote-item {
+      background: white;
+      border-radius: var(--ah-radius);
+      padding: 12px 14px;
+      box-shadow: var(--ah-shadow);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: all 0.12s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .rvote-item.selected { border-color: var(--ah-blue); background: var(--ah-blue-light); }
+    .rvote-item-type { font-size: 18px; flex-shrink: 0; }
+    .rvote-item-text { flex: 1; font-size: 14px; font-weight: 600; color: var(--ah-text); line-height: 1.4; }
+    .rvote-check {
+      width: 22px; height: 22px; border-radius: 50%;
+      border: 2px solid var(--ah-border);
+      flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 900;
+      transition: all 0.12s;
+    }
+    .rvote-item.selected .rvote-check { background: var(--ah-blue); border-color: var(--ah-blue); color: white; }
+
     /* ── Mood check ── */
     .mood-title {
       font-size: 20px;
@@ -480,6 +521,18 @@
     <div class="waiting-title">Je bent aangemeld!</div>
     <div class="waiting-sub">De host start de quiz zo.<br>Dan kun jij stemmen!</div>
     <div class="waiting-name-chip" id="waiting-name-chip"></div>
+  </div>
+
+  <!-- Retro vote -->
+  <div id="retro-vote-view" class="hidden" style="flex:1; display:flex; flex-direction:column; padding: 8px 0;">
+    <div style="font-size:40px; text-align:center; margin-bottom:12px">🗳️</div>
+    <div class="retro-vote-title">Wat wil jij bespreken?</div>
+    <div class="retro-vote-sub">Kies maximaal 3 onderwerpen die jij het belangrijkste vindt.</div>
+    <div class="rvote-remaining" id="rvote-remaining">3 keuzes over</div>
+    <div class="rvote-list" id="rvote-list"></div>
+    <button class="btn btn-primary" id="rvote-submit-btn" style="width:100%;margin-top:4px" disabled onclick="submitRetroVote()">
+      Verstuur mijn keuze
+    </button>
   </div>
 
   <!-- Retro input -->
@@ -623,8 +676,11 @@
   let isRegistered = false;
   let hasCommented = false;
   let hasMoodVoted = false;
+  let hasRetroVoted = false;
+  let retroVoteRendered = false;
+  let retroVoteSelected = new Set();
 
-  const VIEWS = ['name-view','waiting-view','retro-view','mood-view','voting-view','voted-view','revealed-view','finished-view'];
+  const VIEWS = ['name-view','waiting-view','retro-vote-view','retro-view','mood-view','voting-view','voted-view','revealed-view','finished-view'];
   function showView(id) {
     VIEWS.forEach(v => document.getElementById(v).classList.add('hidden'));
     document.getElementById(id).classList.remove('hidden');
@@ -666,6 +722,7 @@
 
     if (state.phase === 'waiting') {
       myVote = null; lastQuestion = null; hasMoodVoted = false;
+      hasRetroVoted = false; retroVoteRendered = false;
       document.getElementById('waiting-name-chip').textContent = `👋 Ingelogd als ${myName}`;
       showView('waiting-view');
       return;
@@ -673,6 +730,20 @@
 
     if (state.phase === 'retro') {
       showView('retro-view');
+      return;
+    }
+
+    if (state.phase === 'retro-vote') {
+      if (hasRetroVoted) {
+        document.getElementById('waiting-name-chip').textContent = '✅ Stem verstuurd';
+        showView('waiting-view');
+      } else {
+        if (!retroVoteRendered) {
+          renderRetroVoteList(state.retroInputs || []);
+          retroVoteRendered = true;
+        }
+        showView('retro-vote-view');
+      }
       return;
     }
 
@@ -807,6 +878,53 @@
       </button>`;
 
     showView('voted-view');
+  }
+
+  function renderRetroVoteList(inputs) {
+    retroVoteSelected = new Set();
+    document.getElementById('rvote-list').innerHTML = inputs.map((item, i) => `
+      <div class="rvote-item" id="rvitem-${i}" onclick="toggleRetroVote(${i})">
+        <div class="rvote-item-type">${item.type === 'good' ? '✅' : '💡'}</div>
+        <div class="rvote-item-text">${item.text}</div>
+        <div class="rvote-check" id="rvcheck-${i}"></div>
+      </div>`).join('');
+    updateRetroVoteUI();
+  }
+
+  function toggleRetroVote(i) {
+    if (retroVoteSelected.has(i)) {
+      retroVoteSelected.delete(i);
+    } else {
+      if (retroVoteSelected.size >= 3) return;
+      retroVoteSelected.add(i);
+    }
+    updateRetroVoteUI();
+  }
+
+  function updateRetroVoteUI() {
+    const remaining = 3 - retroVoteSelected.size;
+    const remEl = document.getElementById('rvote-remaining');
+    const btn   = document.getElementById('rvote-submit-btn');
+    if (remEl) {
+      remEl.textContent = remaining > 0 ? `${remaining} keuze${remaining !== 1 ? 's' : ''} over` : 'Klaar!';
+      remEl.className = 'rvote-remaining' + (remaining === 0 ? ' done' : '');
+    }
+    if (btn) btn.disabled = retroVoteSelected.size === 0;
+    document.querySelectorAll('[id^="rvitem-"]').forEach(el => {
+      const idx = parseInt(el.id.replace('rvitem-', ''));
+      const sel = retroVoteSelected.has(idx);
+      el.className = 'rvote-item' + (sel ? ' selected' : '');
+      const check = document.getElementById(`rvcheck-${idx}`);
+      if (check) check.textContent = sel ? '✓' : '';
+    });
+  }
+
+  function submitRetroVote() {
+    if (retroVoteSelected.size === 0 || hasRetroVoted) return;
+    hasRetroVoted = true;
+    socket.emit('retro-vote-submit', { voterId, selected: [...retroVoteSelected] });
+    document.getElementById('waiting-name-chip').textContent = '✅ Stem verstuurd';
+    showView('waiting-view');
   }
 
   function submitRetro(type) {
