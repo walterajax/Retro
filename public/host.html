@@ -597,7 +597,7 @@
       </div>
     </div>
     <div class="controls">
-      <button class="btn btn-primary btn-large" onclick="hostStartQuiz()">🚀 Start de quiz</button>
+      <button class="btn btn-primary btn-large" id="retro-action-btn" onclick="hostStartReview()">📋 Bespreek met het team</button>
     </div>
   </div>
 
@@ -736,7 +736,8 @@
     document.getElementById('header-sub').textContent =
       state.phase === 'waiting'  ? 'Host' :
       state.phase === 'mood'     ? 'Stemmingscheck' :
-      state.phase === 'retro'    ? 'Sprint-reflectie' :
+      state.phase === 'retro'        ? 'Sprint-reflectie' :
+      state.phase === 'retro-review' ? 'Bespreken' :
       state.phase === 'finished' ? 'Klaar!' :
       `Vraag ${state.currentQuestion + 1} / ${state.totalQuestions}`;
 
@@ -756,7 +757,7 @@
     } else if (state.phase === 'mood') {
       document.getElementById('mood-screen').classList.remove('hidden');
       renderMoodScreen(state);
-    } else if (state.phase === 'retro') {
+    } else if (state.phase === 'retro' || state.phase === 'retro-review') {
       document.getElementById('retro-screen').classList.remove('hidden');
       renderRetroScreen(state);
     } else if (state.phase === 'finished') {
@@ -834,6 +835,12 @@
 
   function renderRetroScreen(state) {
     const inputs = state.retroInputs || [];
+    const isReview = state.phase === 'retro-review';
+
+    document.getElementById('retro-sub').textContent = isReview
+      ? 'Bespreek samen wat er staat. Start de quiz als iedereen klaar is.'
+      : 'Deelnemers delen anoniem wat er speelt. Kijk mee terwijl het binnenkomt.';
+
     document.getElementById('retro-count').textContent =
       inputs.length === 0 ? 'Nog geen reacties' :
       inputs.length === 1 ? '1 reactie' : `${inputs.length} reacties`;
@@ -843,11 +850,20 @@
 
     document.getElementById('retro-good-items').innerHTML =
       good.map(i => `<div class="retro-item">${i.text}</div>`).join('') ||
-      '<div style="color:var(--ah-text-light);font-size:13px;padding:4px 0">Wachten...</div>';
+      '<div style="color:var(--ah-text-light);font-size:13px;padding:4px 0">Niets ingevuld.</div>';
 
     document.getElementById('retro-better-items').innerHTML =
       better.map(i => `<div class="retro-item">${i.text}</div>`).join('') ||
-      '<div style="color:var(--ah-text-light);font-size:13px;padding:4px 0">Wachten...</div>';
+      '<div style="color:var(--ah-text-light);font-size:13px;padding:4px 0">Niets ingevuld.</div>';
+
+    const btn = document.getElementById('retro-action-btn');
+    if (isReview) {
+      btn.textContent = '🚀 Start de quiz';
+      btn.onclick = hostStartQuiz;
+    } else {
+      btn.textContent = '📋 Bespreek met het team';
+      btn.onclick = hostStartReview;
+    }
   }
 
   function renderComments(state) {
@@ -947,9 +963,10 @@
       </div>` : '');
   }
 
-  function hostStart()       { socket.emit('host-start'); }
-  function hostStartRetro()  { socket.emit('host-start-retro'); }
-  function hostStartQuiz()   { socket.emit('host-start-quiz'); }
+  function hostStart()        { socket.emit('host-start'); }
+  function hostStartRetro()   { socket.emit('host-start-retro'); }
+  function hostStartReview()  { socket.emit('host-start-review'); }
+  function hostStartQuiz()    { socket.emit('host-start-quiz'); }
   function hostReveal()     { socket.emit('host-reveal'); }
   function hostNext()       { socket.emit('host-next'); }
   function hostRestart()    { socket.emit('host-restart'); }
