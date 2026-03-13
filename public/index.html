@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AH Retro Quiz</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 24px;
+    }
+
+    .landing-card {
+      max-width: 480px;
+      width: 100%;
+      text-align: center;
+      padding: 48px 40px;
+    }
+
+    .landing-logo {
+      font-size: 72px;
+      margin-bottom: 8px;
+    }
+
+    .ah-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--ah-blue);
+      color: white;
+      padding: 8px 20px;
+      border-radius: 100px;
+      font-size: 14px;
+      font-weight: 700;
+      margin-bottom: 24px;
+    }
+
+    .ah-badge-logo {
+      width: 28px;
+      height: 28px;
+      background: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 900;
+      color: var(--ah-blue);
+    }
+
+    .landing-title {
+      font-size: 32px;
+      font-weight: 900;
+      color: var(--ah-text);
+      margin-bottom: 12px;
+      letter-spacing: -0.5px;
+    }
+
+    .landing-sub {
+      font-size: 16px;
+      color: var(--ah-text-light);
+      line-height: 1.6;
+      margin-bottom: 40px;
+    }
+
+    .landing-links {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .landing-link-btn {
+      display: flex;
+      align-items: center;
+      padding: 18px 24px;
+      background: white;
+      border: 2px solid var(--ah-border);
+      border-radius: var(--ah-radius);
+      text-decoration: none;
+      color: var(--ah-text);
+      font-weight: 700;
+      font-size: 16px;
+      gap: 14px;
+      transition: all 0.15s ease;
+      box-shadow: var(--ah-shadow);
+    }
+
+    .landing-link-btn:hover {
+      border-color: var(--ah-blue);
+      background: var(--ah-blue-light);
+      color: var(--ah-blue);
+      transform: translateY(-2px);
+      box-shadow: var(--ah-shadow-lg);
+    }
+
+    .link-icon {
+      font-size: 28px;
+    }
+
+    .link-label {
+      text-align: left;
+      flex: 1;
+    }
+
+    .link-title {
+      display: block;
+      font-size: 16px;
+      font-weight: 800;
+    }
+
+    .link-desc {
+      display: block;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--ah-text-light);
+      margin-top: 2px;
+    }
+
+    .landing-link-btn:hover .link-desc {
+      color: var(--ah-blue-mid);
+    }
+
+    .arrow {
+      font-size: 18px;
+      opacity: 0.4;
+    }
+  </style>
+</head>
+<body>
+
+<div class="card landing-card fade-in">
+  <div class="landing-logo">🛒</div>
+  <div class="ah-badge">
+    <div class="ah-badge-logo">AH</div>
+    Retro Quiz
+  </div>
+
+  <h1 class="landing-title">Welkom bij de<br>Sprint Retro!</h1>
+  <p class="landing-sub">
+    Stem anoniem op je teamgenoten en ontdek wie wat het beste kan in jullie team.
+  </p>
+
+  <div class="landing-links">
+    <a href="/host.html" class="landing-link-btn">
+      <div class="link-icon">📺</div>
+      <div class="link-label">
+        <span class="link-title">Host scherm</span>
+        <span class="link-desc">Voor op de grote scherm – bedien de quiz</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+
+    <a href="/vote.html" class="landing-link-btn">
+      <div class="link-icon">📱</div>
+      <div class="link-label">
+        <span class="link-title">Stemmen</span>
+        <span class="link-desc">Open op je telefoon en breng je stem uit</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+  </div>
+</div>
+
+</body>
+</html>
