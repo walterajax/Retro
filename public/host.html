@@ -253,7 +253,7 @@
     <div class="waiting-title">AH Retro Quiz</div>
     <div class="waiting-sub">Klaar om te beginnen? Zorg dat iedereen<br>verbonden is via het stemmenscherm.</div>
     <div class="url-hint">
-      <span>Stemmen via: </span>localhost:3000/vote.html
+      <span>Stemmen via: </span><span id="vote-url"></span>
     </div>
     <button class="btn btn-primary btn-large" onclick="hostStart()">
       🚀 Start de quiz
@@ -326,7 +326,13 @@
 
 <script src="/socket.io/socket.io.js"></script>
 <script>
+  // Dynamische URL voor stemmenscherm
+  document.getElementById('vote-url').textContent = window.location.host + '/vote.html';
+
   const socket = io({ transports: ['websocket', 'polling'] });
+
+  socket.on('connect', () => console.log('Verbonden met server'));
+  socket.on('connect_error', (err) => console.error('Verbindingsfout:', err));
 
   socket.on('state', (state) => {
     renderState(state);
