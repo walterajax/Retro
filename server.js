@@ -65,6 +65,7 @@ let gameState = {
   votedIds: new Set(),
   comments: [],
   moodVotes: {},
+  retroInputs: [],
 };
 
 function saveCurrentQuestionResult() {
@@ -98,6 +99,7 @@ function getPublicState() {
       return vals.length > 0 ? Math.round(vals.reduce((a,b) => a+b, 0) / vals.length * 10) / 10 : null;
     })(),
     moodDist: [1,2,3,4,5].map(r => Object.values(gameState.moodVotes).filter(v => v === r).length),
+    retroInputs: gameState.retroInputs,
   };
 }
 
@@ -161,6 +163,7 @@ io.on('connection', (socket) => {
     gameState.votes = {};
     gameState.votedIds = new Set();
     gameState.comments = [];
+    gameState.retroInputs = [];
     io.emit('state', getPublicState());
   });
 
@@ -171,8 +174,23 @@ io.on('connection', (socket) => {
     io.emit('state', getPublicState());
   });
 
-  socket.on('host-start-quiz', () => {
+  socket.on('host-start-retro', () => {
     if (gameState.phase !== 'mood') return;
+    gameState.phase = 'retro';
+    io.emit('state', getPublicState());
+  });
+
+  socket.on('retro-input', ({ type, text }) => {
+    if (gameState.phase !== 'retro') return;
+    if (type !== 'good' && type !== 'better') return;
+    const trimmed = (text || '').trim().slice(0, 200);
+    if (!trimmed) return;
+    gameState.retroInputs.push({ type, text: trimmed });
+    io.emit('state', getPublicState());
+  });
+
+  socket.on('host-start-quiz', () => {
+    if (gameState.phase !== 'retro') return;
     gameState.phase = 'voting';
     io.emit('state', getPublicState());
   });
@@ -207,6 +225,7 @@ io.on('connection', (socket) => {
     gameState.votedIds = new Set();
     gameState.comments = [];
     gameState.moodVotes = {};
+    gameState.retroInputs = [];
     io.emit('state', getPublicState());
   });
 });

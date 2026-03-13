@@ -412,6 +412,70 @@
       margin: 8px 0 20px;
     }
 
+    /* ── Retro screen ── */
+    #retro-screen { padding: 28px 0 8px; }
+    .retro-header {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+    .retro-title {
+      font-size: 24px;
+      font-weight: 900;
+      color: var(--ah-text);
+      margin-bottom: 6px;
+    }
+    .retro-sub {
+      font-size: 15px;
+      color: var(--ah-text-light);
+      margin-bottom: 10px;
+    }
+    .retro-count {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--ah-blue);
+      background: var(--ah-blue-light);
+      display: inline-block;
+      padding: 4px 14px;
+      border-radius: 100px;
+    }
+    .retro-columns {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+    .retro-col {
+      background: white;
+      border-radius: var(--ah-radius-lg);
+      box-shadow: var(--ah-shadow);
+      overflow: hidden;
+      min-height: 160px;
+    }
+    .retro-col-header {
+      padding: 12px 16px;
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+    }
+    .retro-col-header.good   { background: #E6F7EF; color: var(--ah-success); }
+    .retro-col-header.better { background: var(--ah-orange-light); color: var(--ah-orange); }
+    .retro-items {
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .retro-item {
+      background: var(--ah-bg);
+      border-radius: var(--ah-radius);
+      padding: 10px 12px;
+      font-size: 14px;
+      color: var(--ah-text);
+      line-height: 1.4;
+      animation: fadeIn 0.3s ease;
+    }
+
     /* ── Countdown overlay ── */
     #countdown-overlay {
       position: fixed;
@@ -510,6 +574,28 @@
     </div>
     <div class="mood-dist" id="mood-dist"></div>
     <div class="mood-status" id="mood-status">Wachten op stemmen...</div>
+    <div class="controls">
+      <button class="btn btn-primary btn-large" onclick="hostStartRetro()">📝 Start sprint-reflectie</button>
+    </div>
+  </div>
+
+  <!-- ── Retro input ── -->
+  <div id="retro-screen" class="hidden">
+    <div class="retro-header">
+      <div class="retro-title">📝 Sprint-reflectie</div>
+      <div class="retro-sub">Deelnemers delen anoniem wat er speelt. Kijk mee terwijl het binnenkomt.</div>
+      <div class="retro-count" id="retro-count">0 reacties</div>
+    </div>
+    <div class="retro-columns">
+      <div class="retro-col">
+        <div class="retro-col-header good">✅ Ging goed</div>
+        <div class="retro-items" id="retro-good-items"></div>
+      </div>
+      <div class="retro-col">
+        <div class="retro-col-header better">💡 Kan beter</div>
+        <div class="retro-items" id="retro-better-items"></div>
+      </div>
+    </div>
     <div class="controls">
       <button class="btn btn-primary btn-large" onclick="hostStartQuiz()">🚀 Start de quiz</button>
     </div>
@@ -643,12 +729,14 @@
   });
 
   function renderState(state) {
-    ['waiting-screen','mood-screen','quiz-screen','finished-screen'].forEach(id =>
+    ['waiting-screen','mood-screen','retro-screen','quiz-screen','finished-screen'].forEach(id =>
       document.getElementById(id).classList.add('hidden')
     );
 
     document.getElementById('header-sub').textContent =
-      state.phase === 'waiting' ? 'Host' :
+      state.phase === 'waiting'  ? 'Host' :
+      state.phase === 'mood'     ? 'Stemmingscheck' :
+      state.phase === 'retro'    ? 'Sprint-reflectie' :
       state.phase === 'finished' ? 'Klaar!' :
       `Vraag ${state.currentQuestion + 1} / ${state.totalQuestions}`;
 
@@ -668,6 +756,9 @@
     } else if (state.phase === 'mood') {
       document.getElementById('mood-screen').classList.remove('hidden');
       renderMoodScreen(state);
+    } else if (state.phase === 'retro') {
+      document.getElementById('retro-screen').classList.remove('hidden');
+      renderRetroScreen(state);
     } else if (state.phase === 'finished') {
       document.getElementById('finished-screen').classList.remove('hidden');
       renderQualities(state.allResults, state.teamMembers);
@@ -739,6 +830,24 @@
           <div class="mood-dist-count">${count}</div>
         </div>`;
     }).join('');
+  }
+
+  function renderRetroScreen(state) {
+    const inputs = state.retroInputs || [];
+    document.getElementById('retro-count').textContent =
+      inputs.length === 0 ? 'Nog geen reacties' :
+      inputs.length === 1 ? '1 reactie' : `${inputs.length} reacties`;
+
+    const good   = inputs.filter(i => i.type === 'good');
+    const better = inputs.filter(i => i.type === 'better');
+
+    document.getElementById('retro-good-items').innerHTML =
+      good.map(i => `<div class="retro-item">${i.text}</div>`).join('') ||
+      '<div style="color:var(--ah-text-light);font-size:13px;padding:4px 0">Wachten...</div>';
+
+    document.getElementById('retro-better-items').innerHTML =
+      better.map(i => `<div class="retro-item">${i.text}</div>`).join('') ||
+      '<div style="color:var(--ah-text-light);font-size:13px;padding:4px 0">Wachten...</div>';
   }
 
   function renderComments(state) {
@@ -838,8 +947,9 @@
       </div>` : '');
   }
 
-  function hostStart()      { socket.emit('host-start'); }
-  function hostStartQuiz()  { socket.emit('host-start-quiz'); }
+  function hostStart()       { socket.emit('host-start'); }
+  function hostStartRetro()  { socket.emit('host-start-retro'); }
+  function hostStartQuiz()   { socket.emit('host-start-quiz'); }
   function hostReveal()     { socket.emit('host-reveal'); }
   function hostNext()       { socket.emit('host-next'); }
   function hostRestart()    { socket.emit('host-restart'); }

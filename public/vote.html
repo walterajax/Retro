@@ -345,6 +345,55 @@
     .finished-title { font-size: 22px; font-weight: 900; color: var(--ah-blue); margin-bottom: 8px; }
     .finished-sub   { font-size: 15px; color: var(--ah-text-light); line-height: 1.5; }
 
+    /* ── Retro input (mobile) ── */
+    .retro-vote-title {
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--ah-text);
+      margin-bottom: 6px;
+      text-align: center;
+    }
+    .retro-vote-sub {
+      font-size: 14px;
+      color: var(--ah-text-light);
+      text-align: center;
+      margin-bottom: 20px;
+      line-height: 1.5;
+    }
+    .retro-input-section {
+      background: white;
+      border-radius: var(--ah-radius-lg);
+      box-shadow: var(--ah-shadow);
+      padding: 16px;
+      margin-bottom: 12px;
+    }
+    .retro-input-label {
+      font-size: 12px;
+      font-weight: 800;
+      margin-bottom: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+    }
+    .retro-input-label.good   { color: var(--ah-success); }
+    .retro-input-label.better { color: var(--ah-orange); }
+    .retro-confirm {
+      text-align: center;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--ah-success);
+      padding: 8px;
+      background: #E6F7EF;
+      border-radius: var(--ah-radius);
+      margin-top: 8px;
+    }
+    .retro-vote-hint {
+      text-align: center;
+      font-size: 13px;
+      color: var(--ah-text-light);
+      margin-top: 4px;
+      font-weight: 600;
+    }
+
     /* ── Mood check ── */
     .mood-title {
       font-size: 20px;
@@ -431,6 +480,35 @@
     <div class="waiting-title">Je bent aangemeld!</div>
     <div class="waiting-sub">De host start de quiz zo.<br>Dan kun jij stemmen!</div>
     <div class="waiting-name-chip" id="waiting-name-chip"></div>
+  </div>
+
+  <!-- Retro input -->
+  <div id="retro-view" class="hidden" style="flex:1; display:flex; flex-direction:column; padding: 8px 0;">
+    <div style="font-size:40px; text-align:center; margin-bottom:12px">📝</div>
+    <div class="retro-vote-title">Hoe was de sprint?</div>
+    <div class="retro-vote-sub">Deel anoniem wat je wil – zo veel of weinig als je wilt.</div>
+
+    <div class="retro-input-section">
+      <div class="retro-input-label good">✅ Wat ging goed?</div>
+      <textarea id="retro-good-input" class="comment-textarea"
+        placeholder="Bijv. goede samenwerking..." rows="2" maxlength="200"></textarea>
+      <button class="btn btn-secondary" style="width:100%;margin-top:8px" onclick="submitRetro('good')">
+        Verstuur
+      </button>
+      <div id="retro-good-confirm" class="retro-confirm hidden">✅ Verstuurd!</div>
+    </div>
+
+    <div class="retro-input-section">
+      <div class="retro-input-label better">💡 Wat kan beter?</div>
+      <textarea id="retro-better-input" class="comment-textarea"
+        placeholder="Bijv. meer focus op..." rows="2" maxlength="200"></textarea>
+      <button class="btn btn-secondary" style="width:100%;margin-top:8px" onclick="submitRetro('better')">
+        Verstuur
+      </button>
+      <div id="retro-better-confirm" class="retro-confirm hidden">✅ Verstuurd!</div>
+    </div>
+
+    <div class="retro-vote-hint">De host start de quiz als iedereen klaar is.</div>
   </div>
 
   <!-- Mood check -->
@@ -546,7 +624,7 @@
   let hasCommented = false;
   let hasMoodVoted = false;
 
-  const VIEWS = ['name-view','waiting-view','mood-view','voting-view','voted-view','revealed-view','finished-view'];
+  const VIEWS = ['name-view','waiting-view','retro-view','mood-view','voting-view','voted-view','revealed-view','finished-view'];
   function showView(id) {
     VIEWS.forEach(v => document.getElementById(v).classList.add('hidden'));
     document.getElementById(id).classList.remove('hidden');
@@ -590,6 +668,11 @@
       myVote = null; lastQuestion = null; hasMoodVoted = false;
       document.getElementById('waiting-name-chip').textContent = `👋 Ingelogd als ${myName}`;
       showView('waiting-view');
+      return;
+    }
+
+    if (state.phase === 'retro') {
+      showView('retro-view');
       return;
     }
 
@@ -724,6 +807,21 @@
       </button>`;
 
     showView('voted-view');
+  }
+
+  function submitRetro(type) {
+    const inputId   = type === 'good' ? 'retro-good-input'   : 'retro-better-input';
+    const confirmId = type === 'good' ? 'retro-good-confirm' : 'retro-better-confirm';
+    const input = document.getElementById(inputId);
+    const text = (input ? input.value : '').trim();
+    if (!text) return;
+    socket.emit('retro-input', { type, text });
+    input.value = '';
+    const confirm = document.getElementById(confirmId);
+    if (confirm) {
+      confirm.classList.remove('hidden');
+      setTimeout(() => confirm.classList.add('hidden'), 2000);
+    }
   }
 
   function submitMood(rating) {
