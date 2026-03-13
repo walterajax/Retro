@@ -37,6 +37,43 @@
       transition: width 0.4s ease;
     }
 
+    /* ── Name input ── */
+    #name-view {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 20px;
+    }
+    .name-logo {
+      width: 64px; height: 64px;
+      background: var(--ah-blue);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px; font-weight: 900; color: white; letter-spacing: -1px;
+      margin: 0 auto 20px;
+    }
+    .name-title { font-size: 22px; font-weight: 900; color: var(--ah-text); margin-bottom: 6px; }
+    .name-sub   { font-size: 15px; color: var(--ah-text-light); margin-bottom: 28px; }
+    .name-input {
+      width: 100%;
+      padding: 14px 18px;
+      border: 2px solid var(--ah-border);
+      border-radius: var(--ah-radius);
+      font-family: var(--font);
+      font-size: 17px;
+      font-weight: 600;
+      color: var(--ah-text);
+      outline: none;
+      margin-bottom: 12px;
+      text-align: center;
+      transition: border-color 0.15s;
+    }
+    .name-input:focus { border-color: var(--ah-blue); }
+    .name-input::placeholder { color: var(--ah-border); font-weight: 500; }
+
     /* ── Waiting ── */
     #waiting-view {
       flex: 1;
@@ -50,6 +87,16 @@
     .waiting-icon { font-size: 56px; margin-bottom: 18px; }
     .waiting-title { font-size: 22px; font-weight: 800; color: var(--ah-blue); margin-bottom: 8px; }
     .waiting-sub   { font-size: 15px; color: var(--ah-text-light); line-height: 1.5; }
+    .waiting-name-chip {
+      display: inline-block;
+      background: var(--ah-blue-light);
+      color: var(--ah-blue);
+      font-size: 14px;
+      font-weight: 700;
+      padding: 6px 16px;
+      border-radius: 100px;
+      margin-top: 16px;
+    }
 
     /* ── Question card mobile ── */
     .question-card-mobile {
@@ -190,11 +237,24 @@
 
 <div class="vote-layout">
 
+  <!-- Name input -->
+  <div id="name-view">
+    <div class="name-logo">AH</div>
+    <div class="name-title">Welkom bij de Retro!</div>
+    <div class="name-sub">Vul je naam in om mee te doen.</div>
+    <input class="name-input" id="name-input" type="text" placeholder="Jouw naam" maxlength="30"
+           onkeydown="if(event.key==='Enter') registerName()">
+    <button class="btn btn-primary" style="width:100%" onclick="registerName()">
+      Deelnemen →
+    </button>
+  </div>
+
   <!-- Waiting -->
-  <div id="waiting-view">
+  <div id="waiting-view" class="hidden">
     <div class="waiting-icon">⏳</div>
-    <div class="waiting-title">Even geduld...</div>
+    <div class="waiting-title">Je bent aangemeld!</div>
     <div class="waiting-sub">De host start de quiz zo.<br>Dan kun jij stemmen!</div>
+    <div class="waiting-name-chip" id="waiting-name-chip"></div>
   </div>
 
   <!-- Voting -->
@@ -250,23 +310,54 @@
     localStorage.setItem('retro-voter-id', voterId);
   }
 
+  let myName = localStorage.getItem('retro-voter-name') || null;
   let myVote = null;
   let lastQuestion = null;
+  let isRegistered = false;
 
-  const INITIALS = { Myrthe:'My', Melanie:'Me', 'Joëlle':'Jo', Maarten:'Ma', Walter:'Wa', Lara:'La' };
-
-  const VIEWS = ['waiting-view','voting-view','voted-view','revealed-view','finished-view'];
+  const VIEWS = ['name-view','waiting-view','voting-view','voted-view','revealed-view','finished-view'];
   function showView(id) {
     VIEWS.forEach(v => document.getElementById(v).classList.add('hidden'));
     document.getElementById(id).classList.remove('hidden');
   }
 
+  function getInitials(name) {
+    const parts = name.trim().split(' ');
+    return parts.length >= 2
+      ? (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
+      : name.slice(0, 2).toUpperCase();
+  }
+
+  function registerName() {
+    const input = document.getElementById('name-input');
+    const name = (input ? input.value : myName || '').trim();
+    if (!name) { if (input) input.focus(); return; }
+    myName = name;
+    localStorage.setItem('retro-voter-name', name);
+    isRegistered = true;
+    socket.emit('register', { voterId, name });
+    document.getElementById('header-sub').textContent = name;
+  }
+
+  // Auto-register if name stored and already connected
+  socket.on('connect', () => {
+    if (myName) {
+      isRegistered = true;
+      socket.emit('register', { voterId, name: myName });
+      document.getElementById('header-sub').textContent = myName;
+    }
+  });
+
   socket.on('state', (state) => {
-    document.getElementById('header-sub').textContent =
-      state.phase === 'waiting' ? 'Stemmen' : `Vraag ${state.currentQuestion + 1}/${state.totalQuestions}`;
+    // Not registered yet → always show name input
+    if (!isRegistered) {
+      showView('name-view');
+      return;
+    }
 
     if (state.phase === 'waiting') {
       myVote = null; lastQuestion = null;
+      document.getElementById('waiting-name-chip').textContent = `👋 Ingelogd als ${myName}`;
       showView('waiting-view');
       return;
     }
@@ -275,6 +366,8 @@
       myVote = null;
       lastQuestion = state.currentQuestion;
     }
+
+    document.getElementById('header-sub').textContent = `Vraag ${state.currentQuestion + 1}/${state.totalQuestions}`;
 
     if (state.phase === 'finished') { showView('finished-view'); return; }
 
@@ -288,7 +381,9 @@
         document.getElementById('voted-for-name').textContent = myVote;
         showView('voted-view');
       } else {
-        renderVoteGrid(state.teamMembers);
+        // Filter eigen naam eruit
+        const others = state.teamMembers.filter(n => n !== myName);
+        renderVoteGrid(others);
         showView('voting-view');
       }
     } else if (state.phase === 'revealed') {
@@ -298,8 +393,8 @@
 
   function renderVoteGrid(members) {
     document.getElementById('vote-grid').innerHTML = members.map(name => `
-      <button class="vote-btn" onclick="castVote('${name}')" id="btn-${name}">
-        <div class="member-avatar">${INITIALS[name] || name.slice(0,2)}</div>
+      <button class="vote-btn" onclick="castVote('${name.replace(/'/g, "\\'")}')" id="btn-${name}">
+        <div class="member-avatar">${getInitials(name)}</div>
         ${name}
       </button>`).join('');
   }

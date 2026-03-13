@@ -16,7 +16,16 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-const TEAM_MEMBERS = ['Myrthe', 'Melanie', 'Joëlle', 'Maarten', 'Walter', 'Lara'];
+let registeredVoters = {}; // { voterId: name }
+
+function getMemberList() {
+  const seen = new Set();
+  const result = [];
+  for (const name of Object.values(registeredVoters)) {
+    if (!seen.has(name)) { seen.add(name); result.push(name); }
+  }
+  return result;
+}
 
 const QUESTIONS = [
   { text: "Wie heeft het beste gevoel voor tone of voice?", emoji: "✍️", label: "Tone of voice" },
@@ -76,7 +85,7 @@ function getPublicState() {
     votes: gameState.votes,
     totalVotes: Object.values(gameState.votes).reduce((a, b) => a + b, 0),
     totalQuestions: QUESTIONS.length,
-    teamMembers: TEAM_MEMBERS,
+    teamMembers: getMemberList(),
     allResults,
   };
 }
@@ -84,10 +93,18 @@ function getPublicState() {
 io.on('connection', (socket) => {
   socket.emit('state', getPublicState());
 
+  socket.on('register', ({ voterId, name }) => {
+    const trimmed = name.trim();
+    if (!trimmed) return;
+    registeredVoters[voterId] = trimmed;
+    io.emit('state', getPublicState());
+  });
+
   socket.on('vote', ({ voterId, memberName }) => {
     if (gameState.phase !== 'voting') return;
     if (gameState.votedIds.has(voterId)) return;
-    if (!TEAM_MEMBERS.includes(memberName)) return;
+    if (!getMemberList().includes(memberName)) return;
+    if (registeredVoters[voterId] === memberName) return; // geen stemmen op jezelf
 
     gameState.votedIds.add(voterId);
     gameState.votes[memberName] = (gameState.votes[memberName] || 0) + 1;
@@ -125,6 +142,7 @@ io.on('connection', (socket) => {
 
   socket.on('host-restart', () => {
     allResults = [];
+    registeredVoters = {};
     gameState.currentQuestion = 0;
     gameState.phase = 'waiting';
     gameState.votes = {};

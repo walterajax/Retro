@@ -330,7 +330,15 @@
     <div class="waiting-logo-wrap">AH</div>
     <div class="waiting-title">Sprint Retro Quiz</div>
     <div class="waiting-sub">Zorg dat iedereen verbonden is,<br>dan kan de quiz beginnen.</div>
-    <div class="url-chip">📱 <span id="vote-url"></span></div><br>
+    <div class="url-chip">📱 <span id="vote-url"></span></div>
+
+    <div id="joined-section" style="margin: 20px 0 28px">
+      <div style="font-size:13px; font-weight:700; color:var(--ah-text-light); text-transform:uppercase; letter-spacing:0.8px; margin-bottom:10px">Aangemeld</div>
+      <div id="joined-chips" style="display:flex; flex-wrap:wrap; gap:8px; justify-content:center; min-height:36px">
+        <span style="color:var(--ah-text-light); font-size:14px">Nog niemand aangemeld...</span>
+      </div>
+    </div>
+
     <button class="btn btn-primary btn-large" onclick="hostStart()">🚀 Start de quiz</button>
   </div>
 
@@ -426,6 +434,15 @@
 
     if (state.phase === 'waiting') {
       document.getElementById('waiting-screen').classList.remove('hidden');
+      const chips = document.getElementById('joined-chips');
+      if (state.teamMembers.length === 0) {
+        chips.innerHTML = '<span style="color:var(--ah-text-light); font-size:14px">Nog niemand aangemeld...</span>';
+      } else {
+        chips.innerHTML = state.teamMembers.map(name => `
+          <span style="background:var(--ah-blue-light); color:var(--ah-blue); font-size:14px; font-weight:700; padding:6px 14px; border-radius:100px">
+            ${name}
+          </span>`).join('');
+      }
     } else if (state.phase === 'finished') {
       document.getElementById('finished-screen').classList.remove('hidden');
       renderQualities(state.allResults, state.teamMembers);
